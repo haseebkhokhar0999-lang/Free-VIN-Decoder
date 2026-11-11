@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { decodeVinFromNhtsa, NhtsaApiError, validateVin } from './src/vin.js';
+import { PLACEHOLDER_PAGES, renderPlaceholderPage } from './src/pages.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -88,6 +89,12 @@ export function createApp({ fetchImpl } = {}) {
   app.get('/decode', (_req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
   });
+
+  for (const page of PLACEHOLDER_PAGES) {
+    app.get(page.path, (_req, res) => {
+      res.type('html').send(renderPlaceholderPage(page));
+    });
+  }
 
   app.get('/', (_req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, 'index.html'));

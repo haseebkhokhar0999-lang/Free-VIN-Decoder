@@ -17,14 +17,106 @@
           <span class="brand-mark" aria-hidden="true">VIN</span>
           <span class="brand-name">Free VIN Decoder</span>
         </a>
-        <span class="header-badge">Free • No Signup</span>
+
+        <button
+          id="mobile-nav-toggle"
+          type="button"
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="site-nav-menu"
+          aria-label="Toggle navigation menu"
+        >
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+        </button>
+
+        <nav id="site-nav-menu" class="site-nav" aria-label="Main navigation">
+          <ul class="nav-list">
+            <li><a href="/" class="nav-link is-active">Home</a></li>
+            <li><a href="/#decoder" class="nav-link">VIN Decoder</a></li>
+            <li><a href="/recall-check" class="nav-link">Recall Check</a></li>
+            <li class="nav-dropdown">
+              <button
+                id="makes-dropdown-btn"
+                type="button"
+                class="nav-link nav-dropdown-toggle"
+                aria-expanded="false"
+                aria-haspopup="true"
+                aria-controls="makes-dropdown-menu"
+              >
+                <span>Makes</span>
+                <svg class="dropdown-caret" viewBox="0 0 12 12" aria-hidden="true">
+                  <path fill="currentColor" d="M2.5 4.25 6 7.75l3.5-3.5-.9-.9L6 5.95 3.4 3.35z" />
+                </svg>
+              </button>
+              <ul id="makes-dropdown-menu" class="dropdown-menu">
+                <li><a href="/honda-vin-decoder" class="dropdown-link">Honda</a></li>
+                <li><a href="/toyota-vin-decoder" class="dropdown-link">Toyota</a></li>
+                <li><a href="/ford-vin-decoder" class="dropdown-link">Ford</a></li>
+                <li><a href="/chevrolet-vin-decoder" class="dropdown-link">Chevrolet</a></li>
+                <li><a href="/bmw-vin-decoder" class="dropdown-link">BMW</a></li>
+                <li><a href="/mercedes-vin-decoder" class="dropdown-link">Mercedes</a></li>
+              </ul>
+            </li>
+            <li><a href="/what-is-a-vin" class="nav-link">What is a VIN</a></li>
+            <li><a href="/vin-decoder-vs-vehicle-history-report" class="nav-link">VIN vs History Report</a></li>
+            <li><a href="/about" class="nav-link">About</a></li>
+            <li><a href="/contact" class="nav-link">Contact</a></li>
+          </ul>
+        </nav>
       </div>
     </header>
 
     <main class="container main-content">
-      <section class="hero-card" aria-labelledby="hero-title">
+      <section class="page-hero" aria-labelledby="page-hero-title">
+        <h1 id="page-hero-title" class="page-hero-title">Free Vehicle VIN Decoder</h1>
+        <p class="page-hero-subtitle">
+          Look up factory vehicle specifications, engine specs, and assembly plant details in seconds.
+        </p>
+        <ul class="trust-badges" aria-label="Service highlights">
+          <li class="trust-badge">
+            <svg class="trust-icon" viewBox="0 0 20 20" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M10 1.5a8.5 8.5 0 1 0 8.5 8.5A8.51 8.51 0 0 0 10 1.5Zm-1.1 12-3.3-3.3 1.2-1.2 2.1 2.1 4.4-4.4 1.2 1.2Z"
+              />
+            </svg>
+            <span>Free</span>
+          </li>
+          <li class="trust-badge">
+            <svg class="trust-icon" viewBox="0 0 20 20" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M10 1.5a8.5 8.5 0 1 0 8.5 8.5A8.51 8.51 0 0 0 10 1.5Zm-1.1 12-3.3-3.3 1.2-1.2 2.1 2.1 4.4-4.4 1.2 1.2Z"
+              />
+            </svg>
+            <span>No Signup</span>
+          </li>
+          <li class="trust-badge">
+            <svg class="trust-icon" viewBox="0 0 20 20" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M10 1.5a8.5 8.5 0 1 0 8.5 8.5A8.51 8.51 0 0 0 10 1.5Zm-1.1 12-3.3-3.3 1.2-1.2 2.1 2.1 4.4-4.4 1.2 1.2Z"
+              />
+            </svg>
+            <span>Official NHTSA Data</span>
+          </li>
+          <li class="trust-badge">
+            <svg class="trust-icon" viewBox="0 0 20 20" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M10 1.5a8.5 8.5 0 1 0 8.5 8.5A8.51 8.51 0 0 0 10 1.5Zm-1.1 12-3.3-3.3 1.2-1.2 2.1 2.1 4.4-4.4 1.2 1.2Z"
+              />
+            </svg>
+            <span>VINs Never Stored</span>
+          </li>
+        </ul>
+      </section>
+
+      <section id="decoder" class="hero-card" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <h1 id="hero-title">Free 17-Character VIN Decoder</h1>
+          <h2 id="hero-title">Free 17-Character VIN Decoder</h2>
           <p class="hero-subtitle">
             Decode any VIN to identify the vehicle, verify its model year, and review factory specifications including body class, engine details, and assembly plant information.
           </p>
@@ -341,12 +433,65 @@
 
     <footer class="site-footer">
       <div class="container">
-        <p class="footer-disclaimer">
-          Free VIN Decoder is an independent, unofficial tool. It is not affiliated with, endorsed by, or connected to NHTSA, NICB, Carfax, or any vehicle manufacturer.
-        </p>
+        <div class="footer-grid">
+          <div class="footer-col footer-about">
+            <div class="footer-brand">
+              <span class="brand-mark" aria-hidden="true">VIN</span>
+              <span class="brand-name">Free VIN Decoder</span>
+            </div>
+            <p class="footer-copy">
+              Instant, free vehicle specification lookups powered by public NHTSA vPIC records — no signup and no VIN storage.
+            </p>
+            <p class="footer-disclaimer-inline">
+              Free VIN Decoder is an independent, unofficial tool. It is not affiliated with, endorsed by, or connected to NHTSA, NICB, Carfax, or any vehicle manufacturer.
+            </p>
+          </div>
+
+          <div class="footer-col">
+            <h3 class="footer-heading">Quick Links</h3>
+            <ul class="footer-links">
+              <li><a href="/">Home</a></li>
+              <li><a href="/#decoder">VIN Decoder</a></li>
+              <li><a href="/recall-check">Recall Check</a></li>
+              <li><a href="/what-is-a-vin">What is a VIN</a></li>
+              <li><a href="/vin-decoder-vs-vehicle-history-report">VIN vs History Report</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h3 class="footer-heading">Popular Makes</h3>
+            <ul class="footer-links">
+              <li><a href="/honda-vin-decoder">Honda</a></li>
+              <li><a href="/toyota-vin-decoder">Toyota</a></li>
+              <li><a href="/ford-vin-decoder">Ford</a></li>
+              <li><a href="/chevrolet-vin-decoder">Chevrolet</a></li>
+              <li><a href="/bmw-vin-decoder">BMW</a></li>
+              <li><a href="/mercedes-vin-decoder">Mercedes</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h3 class="footer-heading">Legal</h3>
+            <ul class="footer-links">
+              <li><a href="/about">About</a></li>
+              <li><a href="/contact">Contact</a></li>
+              <li><a href="/privacy">Privacy</a></li>
+              <li><a href="/terms">Terms</a></li>
+              <li><a href="/faq">FAQ</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p class="footer-copyright">&copy; 2026 Free VIN Decoder</p>
+          <p class="footer-disclaimer">
+            Free VIN Decoder is an independent, unofficial tool. It is not affiliated with, endorsed by, or connected to NHTSA, NICB, Carfax, or any vehicle manufacturer.
+          </p>
+        </div>
       </div>
     </footer>
 
+    <script src="/site-nav.js" defer></script>
     <script src="/app.js" defer></script>
   </body>
 </html>

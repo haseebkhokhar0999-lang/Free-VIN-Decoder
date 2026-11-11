@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import { PassThrough } from 'node:stream';
 import { createApp } from '../server.js';
+import { FOOTER_DISCLAIMER, PLACEHOLDER_PAGES } from '../src/pages.js';
 import { EXAMPLE_VIN, extractVehicleSpecs, validateVin } from '../src/vin.js';
 
 function dispatchRequest(app, method, requestPath) {
@@ -209,6 +210,18 @@ test('HTTP routes handle homepage, valid decode, optional modelyear, invalid VIN
   const homeRes = await dispatchRequest(app, 'GET', '/');
   assert.equal(homeRes.status, 200);
   assert.match(homeRes.body, /Free VIN Decoder is an independent, unofficial tool\./);
+  assert.match(homeRes.body, /Official NHTSA Data/);
+  assert.match(homeRes.body, /VINs Never Stored/);
+  assert.match(homeRes.body, /&copy; 2026 Free VIN Decoder/);
+  assert.match(homeRes.body, /id="decoder"/);
+
+  for (const page of PLACEHOLDER_PAGES) {
+    const res = await dispatchRequest(app, 'GET', page.path);
+    assert.equal(res.status, 200, `Expected 200 for ${page.path}`);
+    assert.match(res.body, /Coming Soon/);
+    assert.ok(res.body.includes(FOOTER_DISCLAIMER), `Disclaimer missing on ${page.path}`);
+    assert.match(res.body, /href="\/#decoder"/);
+  }
 
   const decodeViewRes = await dispatchRequest(app, 'GET', `/decode?vin=${EXAMPLE_VIN}&modelYear=2003`);
   assert.equal(decodeViewRes.status, 200);
