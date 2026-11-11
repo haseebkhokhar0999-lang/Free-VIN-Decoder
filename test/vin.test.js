@@ -9,6 +9,7 @@ import { EXAMPLE_VIN, extractVehicleSpecs, validateVin } from '../src/vin.js';
 function dispatchRequest(app, method, requestPath) {
   return new Promise((resolve, reject) => {
     const socket = new PassThrough();
+    socket.resume();
     socket.remoteAddress = '127.0.0.1';
     socket.destroy = () => {};
 

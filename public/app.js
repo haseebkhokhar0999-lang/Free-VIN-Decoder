@@ -316,7 +316,12 @@ function renderResults(data, enteredYear) {
   const header = data.header || {};
   const mfg = data.manufacturerBlock || {};
 
-  resultsHeading.textContent = header.title || data.summary || 'Vehicle Decoded';
+  const headingFallback = [mfg.modelYear, mfg.make, mfg.vehicleType].filter(Boolean);
+  resultsHeading.textContent =
+    header.title ||
+    (headingFallback.length > 0 ? headingFallback.join(' ').toUpperCase() : '') ||
+    data.summary ||
+    'Vehicle Decoded';
 
   if (header.makeLogoUrl) {
     makeLogo.alt = mfg.make ? `${mfg.make} logo` : 'Make logo';
@@ -327,7 +332,7 @@ function renderResults(data, enteredYear) {
     makeLogo.removeAttribute('src');
   }
 
-  const isClean = Boolean(data.isClean);
+  const isClean = data.isClean !== undefined ? Boolean(data.isClean) : !data.warning;
   errorStatusBanner.className = `status-banner ${isClean ? 'status-success' : 'status-warning'}`;
   statusIconSuccess.hidden = !isClean;
   statusIconWarning.hidden = isClean;
@@ -552,4 +557,8 @@ exampleBtn.addEventListener('click', () => {
 });
 
 window.addEventListener('popstate', loadFromCurrentUrl);
-loadFromCurrentUrl();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadFromCurrentUrl);
+} else {
+  loadFromCurrentUrl();
+}
