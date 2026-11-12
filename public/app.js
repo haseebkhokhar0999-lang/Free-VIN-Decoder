@@ -70,8 +70,12 @@ const dtSearchInput = document.getElementById('dt-search-input');
 const allDetailsTbody = document.getElementById('all-details-tbody');
 const dtInfo = document.getElementById('dt-info');
 const dtPagination = document.getElementById('dt-pagination');
+const recallsSection = document.getElementById('recalls-section');
+const recallsBody = document.getElementById('recalls-body');
+const recallPageLink = document.getElementById('recall-page-link');
 
 let activeController = null;
+let recallController = null;
 let loadingTimer = null;
 let allDetailsRows = [];
 let currentPage = 1;
@@ -379,11 +383,77 @@ function renderResults(data, enteredYear) {
   setAllDetailsExpanded(false);
 
   resultsSection.hidden = false;
+  loadRecallsForVehicle(mfg.make || '', mfg.model || '', mfg.modelYear || '');
+}
+
+async function loadRecallsForVehicle(make, model, modelYear) {
+  if (!recallsSection || !recallsBody || !window.VinRecallsUI) return;
+
+  if (recallController) {
+    recallController.abort();
+    recallController = null;
+  }
+
+  const cleanMake = String(make || '').trim();
+  const cleanModel = String(model || '').trim();
+  const cleanYear = String(modelYear || '').trim();
+
+  if (recallPageLink) {
+    const linkParams = new URLSearchParams();
+    if (cleanMake) linkParams.set('make', cleanMake);
+    if (cleanModel) linkParams.set('model', cleanModel);
+    if (cleanYear) linkParams.set('modelYear', cleanYear);
+    const qs = linkParams.toString();
+    recallPageLink.href = qs ? `/recall-check?${qs}` : '/recall-check';
+  }
+
+  recallsSection.hidden = false;
+
+  if (!cleanMake || !cleanModel || !/^\d{4}$/.test(cleanYear)) {
+    window.VinRecallsUI.renderRecallsMessage(
+      recallsBody,
+      'Make, Model, and a 4-digit Model Year are required to check vehicle-level recalls. Enter a full VIN or add Model Year above, or use the Standalone Recall Check page.',
+      { includeNotice: true }
+    );
+    return;
+  }
+
+  recallController = new AbortController();
+  window.VinRecallsUI.renderRecallsLoading(recallsBody);
+
+  try {
+    const data = await window.VinRecallsUI.fetchRecalls({
+      make: cleanMake,
+      model: cleanModel,
+      modelYear: cleanYear,
+      signal: recallController.signal,
+    });
+    window.VinRecallsUI.renderRecallsResult(recallsBody, data);
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+    window.VinRecallsUI.renderRecallsMessage(
+      recallsBody,
+      err?.message || 'Unable to check open safety recalls right now.',
+      { isError: true, includeNotice: true }
+    );
+  } finally {
+    recallController = null;
+  }
 }
 
 function hideResults() {
+  if (recallController) {
+    recallController.abort();
+    recallController = null;
+  }
   resultsSection.hidden = true;
   modelYearStatus.hidden = true;
+  if (recallsSection) {
+    recallsSection.hidden = true;
+  }
+  if (recallsBody) {
+    recallsBody.textContent = '';
+  }
   allDetailsRows = [];
 }
 

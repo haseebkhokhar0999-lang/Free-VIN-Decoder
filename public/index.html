@@ -8,7 +8,7 @@
       name="description"
       content="Decode any 17-character VIN for free to look up vehicle specs, engine details, and plant information with no signup and no VIN storage."
     />
-    <link rel="stylesheet" href="/styles.css?v=20261111-1" />
+    <link rel="stylesheet" href="/styles.css?v=20261111-2" />
   </head>
   <body>
     <header class="site-header">
@@ -364,6 +364,16 @@
           </div>
         </div>
 
+        <div id="recalls-section" class="nhtsa-card d-print-none" hidden>
+          <div class="nhtsa-card-header results-panel-header">
+            <h3 class="card-section-title">Open Safety Recalls</h3>
+            <a id="recall-page-link" href="/recall-check" class="btn-outline-blue btn-link-compact">Standalone Recall Check</a>
+          </div>
+          <div class="nhtsa-card-body">
+            <div id="recalls-body"></div>
+          </div>
+        </div>
+
         <div class="post-results-explainer">
           <h3>Using NHTSA's VIN Decoder to Identify a Vehicle's Plant of Manufacture</h3>
           <p>
@@ -491,7 +501,8 @@
       </div>
     </footer>
 
-    <script src="/site-nav.js?v=20261111-1" defer></script>
-    <script src="/app.js?v=20261111-1" defer></script>
+    <script src="/site-nav.js?v=20261111-2" defer></script>
+    <script src="/recalls-ui.js?v=20261111-2" defer></script>
+    <script src="/app.js?v=20261111-2" defer></script>
   </body>
 </html>

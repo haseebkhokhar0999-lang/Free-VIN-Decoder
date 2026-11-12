@@ -2,7 +2,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { decodeVinFromNhtsa, NhtsaApiError, validateVin } from './src/vin.js';
-import { PLACEHOLDER_PAGES, renderPlaceholderPage } from './src/pages.js';
+import { fetchRecallsFromNhtsa, NhtsaRecallsError, validateRecallQuery } from './src/recalls.js';
+import { MAKE_PAGE_PATHS, renderMakePage } from './src/make-pages.js';
+import { INFO_PAGE_RENDERERS, renderInfoPage } from './src/info-pages.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,6 +14,7 @@ export function createApp({ fetchImpl } = {}) {
   const app = express();
 
   app.disable('x-powered-by');
+  app.use(express.json({ limit: '16kb' }));
 
   app.use((_req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -86,13 +89,93 @@ export function createApp({ fetchImpl } = {}) {
   app.get('/api/decode', handleDecode);
   app.get('/api/decode/:vin', handleDecode);
 
+  app.get('/api/recalls', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+
+    const pickQuery = (key) => {
+      const val = req.query[key];
+      return typeof val === 'string' ? val : Array.isArray(val) ? String(val[0] || '') : '';
+    };
+
+    const validation = validateRecallQuery({
+      make: pickQuery('make'),
+      model: pickQuery('model'),
+      modelYear: pickQuery('modelYear') || pickQuery('modelyear') || pickQuery('year'),
+    });
+
+    if (!validation.valid) {
+      return res.status(400).json({
+        error: 'INVALID_RECALL_QUERY',
+        message: validation.error,
+      });
+    }
+
+    try {
+      const result = await fetchRecallsFromNhtsa(
+        {
+          make: validation.make,
+          model: validation.model,
+          modelYear: validation.modelYear,
+        },
+        { fetchImpl }
+      );
+      return res.json(result);
+    } catch (err) {
+      if (err instanceof NhtsaRecallsError) {
+        return res.status(err.status).json({
+          error: err.code,
+          message: err.message,
+        });
+      }
+
+      return res.status(502).json({
+        error: 'API_UNREACHABLE',
+        message: 'Unable to reach the NHTSA Recalls service right now. Please try again in a moment.',
+      });
+    }
+  });
+
+  app.post('/api/contact', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+
+    const body = req.body && typeof req.body === 'object' ? req.body : {};
+    const name = typeof body.name === 'string' ? body.name.trim() : '';
+    const email = typeof body.email === 'string' ? body.email.trim() : '';
+    const message = typeof body.message === 'string' ? body.message.trim() : '';
+
+    if (!name || !email || !message) {
+      return res.status(400).json({
+        error: 'INVALID_CONTACT_SUBMISSION',
+        message: 'Please provide your name, email address, and feedback message.',
+      });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({
+        error: 'INVALID_EMAIL',
+        message: 'Please enter a valid email address.',
+      });
+    }
+
+    return res.json({
+      ok: true,
+      message: 'Thank you for your website feedback! Your note has been received.',
+    });
+  });
+
   app.get('/decode', (_req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
   });
 
-  for (const page of PLACEHOLDER_PAGES) {
-    app.get(page.path, (_req, res) => {
-      res.type('html').send(renderPlaceholderPage(page));
+  for (const slug of MAKE_PAGE_PATHS) {
+    app.get(slug, (_req, res) => {
+      res.type('html').send(renderMakePage(slug));
+    });
+  }
+
+  for (const routePath of INFO_PAGE_RENDERERS.keys()) {
+    app.get(routePath, (_req, res) => {
+      res.type('html').send(renderInfoPage(routePath));
     });
   }
 

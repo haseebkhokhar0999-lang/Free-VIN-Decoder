@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import { PassThrough } from 'node:stream';
 import { createApp } from '../server.js';
-import { FOOTER_DISCLAIMER, PLACEHOLDER_PAGES } from '../src/pages.js';
+import { FOOTER_DISCLAIMER } from '../src/pages.js';
+import { MAKE_PAGE_PATHS } from '../src/make-pages.js';
+import { INFO_PAGE_RENDERERS } from '../src/info-pages.js';
+import { extractRecallRecords, fetchRecallsFromNhtsa, validateRecallQuery } from '../src/recalls.js';
 import { EXAMPLE_VIN, extractVehicleSpecs, validateVin } from '../src/vin.js';
 
 function dispatchRequest(app, method, requestPath) {
@@ -11,7 +14,7 @@ function dispatchRequest(app, method, requestPath) {
     const socket = new PassThrough();
     socket.resume();
     socket.remoteAddress = '127.0.0.1';
-    socket.destroy = () => {};
+    socket.writable = true;
 
     const req = new http.IncomingMessage(socket);
     req.method = method;
@@ -19,6 +22,7 @@ function dispatchRequest(app, method, requestPath) {
     req.headers = { host: 'localhost' };
 
     const res = new http.ServerResponse(req);
+    res.assignSocket(socket);
     const chunks = [];
 
     const origWrite = res.write.bind(res);
@@ -170,11 +174,75 @@ test('extractVehicleSpecs marks record as not found when core fields are missing
   assert.deepEqual(extracted.specs, []);
 });
 
-test('HTTP routes handle homepage, valid decode, optional modelyear, invalid VIN, VIN not found, and NHTSA unreachable', async () => {
+test('validateRecallQuery and extractRecallRecords normalize inputs and handle NHTSA 400 empty result', async () => {
+  assert.equal(validateRecallQuery({ make: '', model: 'Accord', modelYear: '2003' }).valid, false);
+  assert.equal(validateRecallQuery({ make: 'Honda', model: '', modelYear: '2003' }).valid, false);
+  assert.equal(validateRecallQuery({ make: 'Honda', model: 'Accord', modelYear: '20' }).valid, false);
+
+  const valid = validateRecallQuery({ make: ' Honda ', model: ' Accord ', modelYear: '2003' });
+  assert.equal(valid.valid, true);
+  assert.equal(valid.make, 'Honda');
+
+  const records = extractRecallRecords({
+    results: [
+      {
+        NHTSACampaignNumber: '19V182000',
+        Component: 'AIR BAGS',
+        Summary: 'Inflator issue',
+        Remedy: 'Dealer replacement',
+        Consequence: 'Injury risk',
+        ReportReceivedDate: '06/03/2019',
+        parkIt: false,
+        parkOutSide: true,
+      },
+    ],
+  });
+  assert.equal(records.length, 1);
+  assert.equal(records[0].campaignNumber, '19V182000');
+  assert.equal(records[0].parkOutside, true);
+
+  const zeroResult = await fetchRecallsFromNhtsa(
+    { make: 'HONDA', model: 'Accord', modelYear: '2026' },
+    {
+      fetchImpl: async () =>
+        new Response(JSON.stringify({ Count: 0, Message: 'Results returned successfully', results: [] }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    }
+  );
+  assert.equal(zeroResult.count, 0);
+  assert.deepEqual(zeroResult.recalls, []);
+});
+
+test('HTTP routes handle homepage, recalls, make pages, policy/info pages, contact, and VIN API errors', async () => {
   let mockMode = 'ok';
   let lastRequestedUrl = '';
   const mockFetch = async (url) => {
     lastRequestedUrl = url;
+    if (url.includes('api.nhtsa.gov/recalls/recallsByVehicle')) {
+      if (mockMode === 'network_error') throw new Error('ECONNREFUSED');
+      if (mockMode === 'recalls_empty') {
+        return new Response(JSON.stringify({ Count: 0, results: [] }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(
+        JSON.stringify({
+          Count: 1,
+          results: [
+            {
+              NHTSACampaignNumber: '19V182000',
+              Component: 'AIR BAGS',
+              Summary: 'Summary text',
+              Remedy: 'Remedy text',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
     if (mockMode === 'network_error') {
       throw new Error('ECONNREFUSED');
     }
@@ -211,18 +279,47 @@ test('HTTP routes handle homepage, valid decode, optional modelyear, invalid VIN
   const homeRes = await dispatchRequest(app, 'GET', '/');
   assert.equal(homeRes.status, 200);
   assert.match(homeRes.body, /Free VIN Decoder is an independent, unofficial tool\./);
+  assert.match(homeRes.body, /Open Safety Recalls/);
   assert.match(homeRes.body, /Official NHTSA Data/);
   assert.match(homeRes.body, /VINs Never Stored/);
   assert.match(homeRes.body, /&copy; 2026 Free VIN Decoder/);
   assert.match(homeRes.body, /id="decoder"/);
 
-  for (const page of PLACEHOLDER_PAGES) {
-    const res = await dispatchRequest(app, 'GET', page.path);
-    assert.equal(res.status, 200, `Expected 200 for ${page.path}`);
-    assert.match(res.body, /Coming Soon/);
-    assert.ok(res.body.includes(FOOTER_DISCLAIMER), `Disclaimer missing on ${page.path}`);
-    assert.match(res.body, /href="\/#decoder"/);
+  for (const slug of MAKE_PAGE_PATHS) {
+    const res = await dispatchRequest(app, 'GET', slug);
+    assert.equal(res.status, 200, `Expected 200 for ${slug}`);
+    assert.match(res.body, /id="vin-form"/);
+    assert.match(res.body, /Back to Main VIN Decoder/);
+    assert.ok(res.body.includes(FOOTER_DISCLAIMER), `Disclaimer missing on ${slug}`);
   }
+
+  for (const routePath of INFO_PAGE_RENDERERS.keys()) {
+    const res = await dispatchRequest(app, 'GET', routePath);
+    assert.equal(res.status, 200, `Expected 200 for ${routePath}`);
+    assert.ok(!res.body.includes('Coming Soon'), `Unexpected Coming Soon placeholder on ${routePath}`);
+    assert.ok(res.body.includes(FOOTER_DISCLAIMER), `Disclaimer missing on ${routePath}`);
+  }
+
+  const recallPageRes = await dispatchRequest(app, 'GET', '/recall-check');
+  assert.equal(recallPageRes.status, 200);
+  assert.match(recallPageRes.body, /Check Recalls/);
+
+  const privacyRes = await dispatchRequest(app, 'GET', '/privacy');
+  assert.match(privacyRes.body, /google\.com\/settings\/ads/);
+  assert.match(privacyRes.body, /never stored/i);
+
+  const recallsOk = await dispatchRequest(app, 'GET', '/api/recalls?make=HONDA&model=Accord&modelYear=2003');
+  assert.equal(recallsOk.status, 200);
+  assert.equal(recallsOk.json().count, 1);
+
+  mockMode = 'recalls_empty';
+  const recallsZero = await dispatchRequest(app, 'GET', '/api/recalls?make=HONDA&model=Accord&modelYear=2026');
+  assert.equal(recallsZero.status, 200);
+  assert.equal(recallsZero.json().count, 0);
+  mockMode = 'ok';
+
+  const recallsBad = await dispatchRequest(app, 'GET', '/api/recalls?make=HONDA&model=&modelYear=2003');
+  assert.equal(recallsBad.status, 400);
 
   const decodeViewRes = await dispatchRequest(app, 'GET', `/decode?vin=${EXAMPLE_VIN}&modelYear=2003`);
   assert.equal(decodeViewRes.status, 200);
