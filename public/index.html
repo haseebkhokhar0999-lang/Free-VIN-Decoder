@@ -30,74 +30,109 @@
           </p>
         </div>
 
-        <form id="vin-form" class="vin-form" novalidate>
-          <div class="fields-grid">
-            <div class="field-group field-vin">
-              <div class="input-header">
-                <label for="vin-input" class="input-label">Vehicle Identification Number (VIN)</label>
-                <span id="vin-counter" class="char-counter" aria-live="polite">0 / 17</span>
+        <div class="decoder-layout">
+          <form id="vin-form" class="vin-form" novalidate>
+            <div class="form-rows">
+              <div class="form-row">
+                <label for="vin-input" class="form-label">VIN</label>
+                <div class="form-control-col">
+                  <input
+                    id="vin-input"
+                    name="vin"
+                    type="text"
+                    maxlength="17"
+                    inputmode="text"
+                    autocomplete="off"
+                    autocapitalize="characters"
+                    spellcheck="false"
+                    placeholder="Enter Your VIN Number"
+                    aria-describedby="vin-help vin-error"
+                  />
+                  <p id="vin-help" class="field-help">Partial VINs are also accepted</p>
+                </div>
               </div>
-              <input
-                id="vin-input"
-                name="vin"
-                type="text"
-                inputmode="text"
-                autocomplete="off"
-                autocapitalize="characters"
-                spellcheck="false"
-                placeholder="e.g. 1HGCM82633A004352"
-                aria-describedby="vin-hint vin-error"
-              />
-            </div>
 
-            <div class="field-group field-year">
-              <div class="input-header">
-                <label for="model-year-input" class="input-label">Model Year</label>
-                <span class="optional-tag">Optional</span>
+              <div class="form-row">
+                <label for="model-year-input" class="form-label">Model Year</label>
+                <div class="form-control-col">
+                  <input
+                    id="model-year-input"
+                    name="modelyear"
+                    type="number"
+                    inputmode="numeric"
+                    placeholder="Vehicle's Model Year"
+                    aria-describedby="model-year-help vin-error"
+                  />
+                  <p id="model-year-help" class="field-help">If entered the year from VIN will be ignored</p>
+                </div>
               </div>
-              <input
-                id="model-year-input"
-                name="modelyear"
-                type="text"
-                inputmode="numeric"
-                maxlength="4"
-                autocomplete="off"
-                placeholder="Vehicle's Model Year"
-                aria-describedby="vin-hint vin-error"
-              />
+
+              <div class="form-actions-row">
+                <span class="form-label-spacer" aria-hidden="true"></span>
+                <div class="form-actions-wrap">
+                  <div class="form-actions-col">
+                    <button id="decode-btn" type="submit" class="btn-primary btn-decode">
+                      <span class="btn-spinner" aria-hidden="true"></span>
+                      <span class="btn-label">Decode VIN</span>
+                    </button>
+                    <a
+                      id="cvs-btn"
+                      class="btn-info btn-cvs"
+                      href="https://vpic.nhtsa.dot.gov/decoder/CaVehSpec?year=2026"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <svg class="maple-leaf-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path
+                          fill="currentColor"
+                          d="M12 1.5l-1.9 4.1-2.5-.9.9 3.6-3.7-.7 1 2-2.8 1.2 4.3 3.4-.7 1.8 4.4-.5-.2 4.8h2.4l-.2-4.8 4.4.5-.7-1.8 4.3-3.4-2.8-1.2 1-2-3.7.7.9-3.6-2.5.9z"
+                        />
+                      </svg>
+                      <span>Canadian Vehicle Specifications</span>
+                    </a>
+                  </div>
+                  <div class="example-row">
+                    <button id="example-vin-btn" type="button" class="example-link">
+                      Try example VIN: <code>1HGCM82633A004352</code>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <button id="decode-btn" type="submit" class="btn-primary btn-full">
-            <span class="btn-spinner" aria-hidden="true"></span>
-            <span class="btn-label">Decode VIN</span>
-          </button>
+            <div id="vin-error" class="alert alert-error" role="alert" hidden></div>
 
-          <div class="form-meta">
-            <p id="vin-hint" class="input-hint">
-              VIN must be 17 characters (letters <strong>I</strong>, <strong>O</strong>, and <strong>Q</strong> are never used). Add a 4-digit model year to confirm it, or leave blank to decode by VIN only.
-            </p>
-            <button id="example-vin-btn" type="button" class="example-link">
-              Try example VIN: <code>1HGCM82633A004352</code>
-            </button>
-          </div>
-
-          <div id="vin-error" class="alert alert-error" role="alert" hidden></div>
-
-          <div id="loading-panel" class="loading-panel" role="status" aria-live="polite" hidden>
-            <div class="loading-top">
-              <span class="loading-status">
-                <span class="inline-spinner" aria-hidden="true"></span>
-                <span>Fetching factory specs from vehicle records…</span>
-              </span>
-              <span id="elapsed-counter" class="elapsed-counter">0.0s</span>
+            <div id="loading-panel" class="loading-panel" role="status" aria-live="polite" hidden>
+              <div class="loading-top">
+                <span class="loading-status">
+                  <span class="inline-spinner" aria-hidden="true"></span>
+                  <span>Fetching factory specs from vehicle records…</span>
+                </span>
+                <span id="elapsed-counter" class="elapsed-counter">0.0s</span>
+              </div>
+              <div class="progress-track" aria-hidden="true">
+                <div id="progress-fill" class="progress-fill"></div>
+              </div>
+              <p id="progress-caption" class="progress-caption">Estimated progress: 0%</p>
             </div>
-            <div class="progress-track" aria-hidden="true">
-              <div id="progress-fill" class="progress-fill"></div>
-            </div>
-            <p id="progress-caption" class="progress-caption">Estimated progress: 0%</p>
-          </div>
-        </form>
+          </form>
+
+          <aside class="decoder-side-note" aria-label="VIN Check Digit Reference">
+            Please refer to page 16 of the
+            <a
+              href="https://vpic.nhtsa.dot.gov/documents/ManufacturerHandbook.pdf?d=20261015"
+              target="_blank"
+              rel="noopener noreferrer"
+            >New&nbsp;Manufacturer's&nbsp;Handbook</a>
+            for specific instructions and/or
+            <a
+              href="https://www.ecfr.gov/current/title-49/subtitle-B/chapter-V/part-565"
+              target="_blank"
+              rel="noopener noreferrer"
+            >CFR&nbsp;49&nbsp;Part&nbsp;565</a>
+            for questions regarding the calculation of the VIN Check Digit at position 9.
+          </aside>
+        </div>
       </section>
 
       <section id="results-section" class="results-card" aria-labelledby="results-heading" hidden>

@@ -18,7 +18,6 @@ const RESULT_SECTIONS = [
 const form = document.getElementById('vin-form');
 const vinInput = document.getElementById('vin-input');
 const modelYearInput = document.getElementById('model-year-input');
-const charCounter = document.getElementById('vin-counter');
 const decodeBtn = document.getElementById('decode-btn');
 const btnLabel = decodeBtn.querySelector('.btn-label');
 const exampleBtn = document.getElementById('example-vin-btn');
@@ -46,7 +45,7 @@ function validateVinInput(raw) {
   const vin = normalizeVin(raw);
 
   if (!vin) {
-    return { valid: false, vin, error: 'Please enter a 17-character VIN.' };
+    return { valid: false, vin, error: 'Please enter a VIN.' };
   }
 
   const forbidden = [...new Set(vin.match(/[IOQ]/g) || [])];
@@ -58,7 +57,7 @@ function validateVinInput(raw) {
     };
   }
 
-  if (/[^A-Z0-9]/.test(vin)) {
+  if (/[^A-Z0-9*]/.test(vin) || !/[A-Z0-9]/.test(vin)) {
     return {
       valid: false,
       vin,
@@ -66,11 +65,11 @@ function validateVinInput(raw) {
     };
   }
 
-  if (vin.length !== 17) {
+  if (vin.length > 17) {
     return {
       valid: false,
       vin,
-      error: `Invalid VIN format: a VIN must be exactly 17 characters (entered ${vin.length}).`,
+      error: `Invalid VIN format: a VIN cannot exceed 17 characters (entered ${vin.length}).`,
     };
   }
 
@@ -90,19 +89,6 @@ function validateOptionalModelYear(raw) {
     };
   }
   return { valid: true, year, error: null };
-}
-
-function updateCounter() {
-  const value = normalizeVin(vinInput.value);
-  const len = value.length;
-  charCounter.textContent = `${len} / 17`;
-  charCounter.classList.remove('is-valid', 'is-invalid');
-
-  if (/[IOQ]/.test(value) || len > 17) {
-    charCounter.classList.add('is-invalid');
-  } else if (len === 17 && !/[^A-Z0-9]/.test(value)) {
-    charCounter.classList.add('is-valid');
-  }
 }
 
 function showError(message) {
@@ -275,7 +261,6 @@ function hideResults() {
 async function decodeVin(rawVin, rawModelYear = '') {
   const check = validateVinInput(rawVin);
   vinInput.value = check.vin;
-  updateCounter();
 
   if (!check.valid) {
     hideResults();
@@ -357,7 +342,6 @@ vinInput.addEventListener('input', () => {
       vinInput.setSelectionRange(pos, pos);
     }
   }
-  updateCounter();
   if (!errorBox.hidden) {
     clearError();
   }
@@ -381,17 +365,13 @@ form.addEventListener('submit', (event) => {
 exampleBtn.addEventListener('click', () => {
   vinInput.value = EXAMPLE_VIN;
   modelYearInput.value = '';
-  updateCounter();
   decodeVin(EXAMPLE_VIN, '');
 });
 
 clearBtn.addEventListener('click', () => {
   vinInput.value = '';
   modelYearInput.value = '';
-  updateCounter();
   clearError();
   hideResults();
   vinInput.focus();
 });
-
-updateCounter();

@@ -17,7 +17,7 @@ export function validateVin(raw) {
     return {
       valid: false,
       vin,
-      error: 'Please enter a 17-character VIN.',
+      error: 'Please enter a VIN.',
     };
   }
 
@@ -30,7 +30,7 @@ export function validateVin(raw) {
     };
   }
 
-  if (/[^A-Z0-9]/.test(vin)) {
+  if (/[^A-Z0-9*]/.test(vin) || !/[A-Z0-9]/.test(vin)) {
     return {
       valid: false,
       vin,
@@ -38,11 +38,11 @@ export function validateVin(raw) {
     };
   }
 
-  if (vin.length !== 17) {
+  if (vin.length > 17) {
     return {
       valid: false,
       vin,
-      error: `Invalid VIN format: a VIN must be exactly 17 characters (entered ${vin.length}).`,
+      error: `Invalid VIN format: a VIN cannot exceed 17 characters (entered ${vin.length}).`,
     };
   }
 

@@ -69,18 +69,23 @@ test('validateVin rejects letters I, O, and Q with a clear error', () => {
   }
 });
 
-test('validateVin rejects VINs shorter or longer than 17 characters', () => {
-  const shortResult = validateVin('1HGCM82633A00435');
-  assert.equal(shortResult.valid, false);
-  assert.match(shortResult.error, /exactly 17 characters/);
+test('validateVin accepts partial VINs and rejects VINs longer than 17 characters', () => {
+  const partialResult = validateVin('1HGCM826');
+  assert.equal(partialResult.valid, true);
+  assert.equal(partialResult.vin, '1HGCM826');
+
+  const wildcardResult = validateVin('1HGCM826*3A');
+  assert.equal(wildcardResult.valid, true);
+  assert.equal(wildcardResult.vin, '1HGCM826*3A');
 
   const longResult = validateVin('1HGCM82633A0043529');
   assert.equal(longResult.valid, false);
-  assert.match(longResult.error, /exactly 17 characters/);
+  assert.match(longResult.error, /cannot exceed 17 characters/);
 });
 
 test('validateVin rejects non-alphanumeric characters and empty input', () => {
   assert.equal(validateVin('').valid, false);
+  assert.equal(validateVin('***').valid, false);
   assert.equal(validateVin('1HGCM826-3A004352').valid, false);
 });
 
