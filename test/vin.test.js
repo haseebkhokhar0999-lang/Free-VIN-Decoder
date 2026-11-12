@@ -89,45 +89,68 @@ test('validateVin rejects non-alphanumeric characters and empty input', () => {
   assert.equal(validateVin('1HGCM826-3A004352').valid, false);
 });
 
-test('extractVehicleSpecs extracts only populated fields among the 11 expected specs', () => {
+test('extractVehicleSpecs extracts full vPIC fields, manufacturer block, other info, and plant info', () => {
   const payload = {
     Results: [
-      { Variable: 'Make', Value: 'HONDA' },
-      { Variable: 'Model', Value: 'Accord' },
-      { Variable: 'Model Year', Value: '2003' },
-      { Variable: 'Trim', Value: '' },
-      { Variable: 'Body Class', Value: 'Sedan/Saloon' },
-      { Variable: 'Displacement (L)', Value: '2.998832712' },
-      { Variable: 'Engine Number of Cylinders', Value: '4' },
-      { Variable: 'Engine Configuration', Value: 'In-Line' },
-      { Variable: 'Engine Model', Value: 'K24A4' },
-      { Variable: 'Fuel Type - Primary', Value: 'Gasoline' },
-      { Variable: 'Transmission Speeds', Value: '5' },
-      { Variable: 'Transmission Style', Value: 'Automatic' },
-      { Variable: 'Drive Type', Value: 'Not Applicable' },
-      { Variable: 'Plant Country', Value: 'UNITED STATES (USA)' },
-      { Variable: 'Manufacturer Name', Value: 'HONDA OF AMERICA MFG., INC.' },
-      { Variable: 'Error Code', Value: '0' },
+      { VariableId: 143, Variable: 'Error Code', Value: '0', ValueId: '0' },
+      {
+        VariableId: 191,
+        Variable: 'Error Text',
+        Value: '0 - VIN decoded clean. Check Digit (9th position) is correct',
+        ValueId: '',
+      },
+      { VariableId: 26, Variable: 'Make', Value: 'HONDA', ValueId: '474' },
+      { VariableId: 27, Variable: 'Manufacturer Name', Value: 'AMERICAN HONDA MOTOR CO., INC.', ValueId: '988' },
+      { VariableId: 28, Variable: 'Model', Value: 'Accord', ValueId: '1861' },
+      { VariableId: 29, Variable: 'Model Year', Value: '2003', ValueId: '' },
+      { VariableId: 39, Variable: 'Vehicle Type', Value: 'PASSENGER CAR', ValueId: '2' },
+      { VariableId: 38, Variable: 'Trim', Value: 'EX-V6', ValueId: '' },
+      { VariableId: 5, Variable: 'Body Class', Value: 'Coupe', ValueId: '3' },
+      { VariableId: 25, Variable: 'Gross Vehicle Weight Rating From', Value: 'Class 1C', ValueId: '12' },
+      { VariableId: 136, Variable: 'Displacement (L)', Value: '2.998832712', ValueId: '' },
+      { VariableId: 9, Variable: 'Engine Number of Cylinders', Value: '6', ValueId: '' },
+      { VariableId: 64, Variable: 'Engine Configuration', Value: 'V-Shaped', ValueId: '2' },
+      { VariableId: 18, Variable: 'Engine Model', Value: 'J30A4', ValueId: '' },
+      { VariableId: 71, Variable: 'Engine Brake (hp) From', Value: '240', ValueId: '' },
+      { VariableId: 24, Variable: 'Fuel Type - Primary', Value: 'Gasoline', ValueId: '4' },
+      { VariableId: 63, Variable: 'Transmission Speeds', Value: '5', ValueId: '' },
+      { VariableId: 37, Variable: 'Transmission Style', Value: 'Automatic', ValueId: '2' },
+      { VariableId: 15, Variable: 'Drive Type', Value: 'Not Applicable', ValueId: '0' },
+      { VariableId: 65, Variable: 'Front Air Bag Locations', Value: '1st Row (Driver and Passenger)', ValueId: '3' },
+      { VariableId: 69, Variable: 'Knee Air Bag Locations', Value: null, ValueId: null },
+      { VariableId: 31, Variable: 'Plant City', Value: 'MARYSVILLE', ValueId: '' },
+      { VariableId: 77, Variable: 'Plant State', Value: 'OHIO', ValueId: '' },
+      { VariableId: 75, Variable: 'Plant Country', Value: 'UNITED STATES (USA)', ValueId: '6' },
     ],
   };
 
-  const extracted = extractVehicleSpecs(payload);
+  const extracted = extractVehicleSpecs(payload, { dbas: 'Honda Development & Manufacturing of America, LLC' });
   assert.equal(extracted.found, true);
-  assert.equal(extracted.summary, '2003 HONDA Accord');
-  assert.equal(extracted.warning, null);
-
-  const byLabel = Object.fromEntries(extracted.specs.map((item) => [item.label, item.value]));
-  assert.equal(byLabel['Make'], 'HONDA');
-  assert.equal(byLabel['Model'], 'Accord');
-  assert.equal(byLabel['Model Year'], '2003');
-  assert.equal('Trim' in byLabel, false);
-  assert.equal('Drive Type' in byLabel, false);
-  assert.equal(byLabel['Body Class'], 'Sedan/Saloon');
-  assert.equal(byLabel['Engine'], '3.0L 4-cyl In-Line (K24A4)');
-  assert.equal(byLabel['Fuel Type'], 'Gasoline');
-  assert.equal(byLabel['Transmission'], '5-Speed Automatic');
-  assert.equal(byLabel['Plant Country'], 'UNITED STATES (USA)');
-  assert.equal(byLabel['Manufacturer'], 'HONDA OF AMERICA MFG., INC.');
+  assert.equal(extracted.isClean, true);
+  assert.equal(extracted.header.title, '2003 HONDA - PASSENGER CAR');
+  assert.equal(extracted.header.makeLogoUrl, 'https://vpic.nhtsa.dot.gov/decoder/Images/Logos/HONDA.jpg');
+  assert.equal(extracted.header.vehicleImageUrl, 'https://vpic.nhtsa.dot.gov/decoder/images/5/3.png');
+  assert.equal(
+    extracted.manufacturerBlock.manufacturerUrl,
+    'https://vpic.nhtsa.dot.gov/decoder/Manufacturer/Details/988'
+  );
+  assert.equal(extracted.manufacturerBlock.dbas, 'Honda Development & Manufacturing of America, LLC');
+  assert.equal(extracted.otherInfo.series, '');
+  assert.equal(extracted.otherInfo.trim, 'EX-V6');
+  assert.equal(extracted.otherInfo.cylinders, '6');
+  assert.equal(extracted.otherInfo.engineBrakeHp, '240');
+  assert.equal(extracted.otherInfo.transmissionSpeed, '5');
+  assert.equal(extracted.otherInfo.transmissionStyle, 'Automatic');
+  assert.equal(extracted.otherInfo.engineDisplacementL, '2.998832712');
+  assert.equal(extracted.otherInfo.airbags.front, '1st Row (Driver and Passenger)');
+  assert.equal(extracted.otherInfo.airbags.knee, '');
+  assert.equal(extracted.otherInfo.plantInformation, 'MARYSVILLE, OHIO, UNITED STATES (USA)');
+  assert.equal(extracted.allDetails.length, 24);
+  assert.deepEqual(extracted.allDetails[2], {
+    groupName: 'General',
+    element: 'Make',
+    value: 'HONDA',
+  });
 });
 
 test('extractVehicleSpecs marks record as not found when core fields are missing', () => {
@@ -186,6 +209,10 @@ test('HTTP routes handle homepage, valid decode, optional modelyear, invalid VIN
   const homeRes = await dispatchRequest(app, 'GET', '/');
   assert.equal(homeRes.status, 200);
   assert.match(homeRes.body, /Free VIN Decoder is an independent, unofficial tool\./);
+
+  const decodeViewRes = await dispatchRequest(app, 'GET', `/decode?vin=${EXAMPLE_VIN}&modelYear=2003`);
+  assert.equal(decodeViewRes.status, 200);
+  assert.match(decodeViewRes.body, /Show All Vehicle Details/);
 
   const healthRes = await dispatchRequest(app, 'GET', '/api/health');
   assert.equal(healthRes.status, 200);

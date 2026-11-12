@@ -1,7 +1,11 @@
+import { VARIABLE_GROUPS } from './vpic-groups.js';
+
 export const EXAMPLE_VIN = '1HGCM82633A004352';
 
-const NHTSA_DECODE_BASE_URL = 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin';
+const NHTSA_DECODE_EXTENDED_BASE_URL = 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinExtended';
+const NHTSA_MFG_DETAILS_BASE_URL = 'https://vpic.nhtsa.dot.gov/api/vehicles/GetManufacturerDetails';
 const DEFAULT_TIMEOUT_MS = 15000;
+const MFG_TIMEOUT_MS = 5000;
 
 const EMPTY_VALUES = new Set(['', 'null', 'not applicable', 'n/a', 'na', 'unknown']);
 
@@ -53,9 +57,13 @@ export function validateVin(raw) {
   };
 }
 
-function cleanValue(value) {
+function cleanRawString(value) {
   if (value === null || value === undefined) return '';
-  const trimmed = String(value).trim();
+  return String(value).trim();
+}
+
+function cleanValue(value) {
+  const trimmed = cleanRawString(value);
   if (!trimmed || EMPTY_VALUES.has(trimmed.toLowerCase())) {
     return '';
   }
@@ -153,7 +161,7 @@ function hasNonZeroErrorCode(errorCodeRaw) {
   });
 }
 
-export function extractVehicleSpecs(nhtsaPayload) {
+export function extractVehicleSpecs(nhtsaPayload, { dbas = '' } = {}) {
   const results = Array.isArray(nhtsaPayload?.Results) ? nhtsaPayload.Results : null;
   if (!results || results.length === 0) {
     return {
@@ -161,20 +169,44 @@ export function extractVehicleSpecs(nhtsaPayload) {
       specs: [],
       summary: null,
       warning: null,
+      errorCode: '',
+      errorText: '',
+      header: null,
+      manufacturerBlock: null,
+      otherInfo: null,
+      allDetails: [],
     };
   }
 
   const map = new Map();
+  const rowByVariable = new Map();
+  const allDetails = [];
+
   for (const row of results) {
     if (!row || typeof row.Variable !== 'string') continue;
     const key = row.Variable.trim();
+    const rawVal = cleanRawString(row.Value);
     const val = cleanValue(row.Value);
+    const valueId = cleanRawString(row.ValueId);
+    const variableId = row.VariableId ?? null;
+
+    if (key && !rowByVariable.has(key)) {
+      rowByVariable.set(key, { value: rawVal, cleanValue: val, valueId, variableId });
+    }
     if (key && val && !map.has(key)) {
       map.set(key, val);
     }
+
+    allDetails.push({
+      groupName: (variableId != null && VARIABLE_GROUPS[variableId]) || '',
+      element: key,
+      value: rawVal,
+    });
   }
 
   const get = (name) => map.get(name) || '';
+  const getRaw = (name) => rowByVariable.get(name)?.cleanValue || '';
+  const getValueId = (name) => rowByVariable.get(name)?.valueId || '';
 
   const candidates = [
     { key: 'make', label: 'Make', value: get('Make') },
@@ -209,16 +241,89 @@ export function extractVehicleSpecs(nhtsaPayload) {
       specs: [],
       summary: null,
       warning: errorText || null,
+      errorCode,
+      errorText,
+      header: null,
+      manufacturerBlock: null,
+      otherInfo: null,
+      allDetails: [],
     };
   }
 
-  const summaryParts = [get('Model Year'), get('Make'), get('Model')].filter(Boolean);
+  const make = getRaw('Make');
+  const model = getRaw('Model');
+  const modelYear = getRaw('Model Year');
+  const vehicleType = getRaw('Vehicle Type');
+  const bodyClass = getRaw('Body Class');
+  const bodyClassId = getValueId('Body Class');
+  const manufacturerName = getRaw('Manufacturer Name') || getRaw('Manufacturer');
+  const manufacturerId = getValueId('Manufacturer Name');
+
+  const summaryParts = [modelYear, make, model].filter(Boolean);
+  const headingLead = [modelYear, make].filter(Boolean).join(' ').toUpperCase();
+  const headingTitle = vehicleType
+    ? `${headingLead}${headingLead ? ' - ' : ''}${vehicleType.toUpperCase()}`
+    : headingLead || 'VEHICLE DECODED';
+
+  const plantParts = [getRaw('Plant City'), getRaw('Plant State'), getRaw('Plant Country')].filter(Boolean);
 
   return {
     found: true,
     specs,
     summary: summaryParts.length > 0 ? summaryParts.join(' ') : null,
     warning: hasNonZeroErrorCode(errorCode) && errorText ? errorText : null,
+    errorCode,
+    errorText,
+    isClean: !hasNonZeroErrorCode(errorCode),
+    header: {
+      title: headingTitle,
+      makeLogoUrl: make
+        ? `https://vpic.nhtsa.dot.gov/decoder/Images/Logos/${encodeURIComponent(make.toUpperCase())}.jpg`
+        : '',
+      vehicleImageUrl:
+        bodyClassId && /^\d+$/.test(bodyClassId) && bodyClassId !== '0'
+          ? `https://vpic.nhtsa.dot.gov/decoder/images/5/${encodeURIComponent(bodyClassId)}.png`
+          : '',
+    },
+    manufacturerBlock: {
+      manufacturer: manufacturerName,
+      manufacturerUrl:
+        manufacturerId && /^\d+$/.test(manufacturerId)
+          ? `https://vpic.nhtsa.dot.gov/decoder/Manufacturer/Details/${encodeURIComponent(manufacturerId)}`
+          : '',
+      dbas: cleanRawString(dbas),
+      vehicleType,
+      modelYear,
+      make,
+      model,
+      bodyClass,
+    },
+    otherInfo: {
+      series: getRaw('Series'),
+      trim: joinUnique([getRaw('Trim'), getRaw('Trim2')]),
+      gvwr: getRaw('Gross Vehicle Weight Rating From'),
+      driveType: getRaw('Drive Type'),
+      cylinders: getRaw('Engine Number of Cylinders'),
+      primaryFuelType: getRaw('Fuel Type - Primary') || getRaw('Fuel Type'),
+      electrificationLevel: getRaw('Electrification Level'),
+      secondaryFuelType: getRaw('Fuel Type - Secondary'),
+      engineModel: getRaw('Engine Model'),
+      engineBrakeHp: getRaw('Engine Brake (hp) From'),
+      engineManufacturer: getRaw('Engine Manufacturer'),
+      transmissionSpeed: getRaw('Transmission Speeds'),
+      transmissionStyle: getRaw('Transmission Style') || getRaw('Transmission'),
+      engineDisplacementL: getRaw('Displacement (L)'),
+      airbags: {
+        front: getRaw('Front Air Bag Locations'),
+        knee: getRaw('Knee Air Bag Locations'),
+        side: getRaw('Side Air Bag Locations'),
+        curtain: getRaw('Curtain Air Bag Locations'),
+        seatCushion: getRaw('Seat Cushion Air Bag Locations'),
+        otherRestraintInfo: getRaw('Other Restraint System Info'),
+      },
+      plantInformation: plantParts.join(', '),
+    },
+    allDetails,
   };
 }
 
@@ -231,13 +336,30 @@ export class NhtsaApiError extends Error {
   }
 }
 
+async function fetchManufacturerDbas(mfrId, fetchImpl) {
+  if (!mfrId || !/^\d+$/.test(mfrId)) return '';
+  try {
+    const res = await fetchImpl(`${NHTSA_MFG_DETAILS_BASE_URL}/${encodeURIComponent(mfrId)}?format=json`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+      signal: AbortSignal.timeout(MFG_TIMEOUT_MS),
+    });
+    if (!res.ok) return '';
+    const data = await res.json();
+    const first = Array.isArray(data?.Results) ? data.Results[0] : null;
+    return first && typeof first.DBAs === 'string' ? first.DBAs.trim() : '';
+  } catch {
+    return '';
+  }
+}
+
 export async function decodeVinFromNhtsa(
   vin,
   { modelYear = '', fetchImpl = fetch, timeoutMs = DEFAULT_TIMEOUT_MS } = {}
 ) {
   const cleanYear = typeof modelYear === 'string' && /^\d{4}$/.test(modelYear.trim()) ? modelYear.trim() : '';
   const query = cleanYear ? `?format=json&modelyear=${encodeURIComponent(cleanYear)}` : '?format=json';
-  const url = `${NHTSA_DECODE_BASE_URL}/${encodeURIComponent(vin)}${query}`;
+  const url = `${NHTSA_DECODE_EXTENDED_BASE_URL}/${encodeURIComponent(vin)}${query}`;
 
   let response;
   try {
@@ -275,6 +397,11 @@ export async function decodeVinFromNhtsa(
     );
   }
 
-  return extractVehicleSpecs(payload);
-}
+  const mfrRow = Array.isArray(payload?.Results)
+    ? payload.Results.find((row) => row && row.Variable === 'Manufacturer Name')
+    : null;
+  const mfrId = mfrRow && mfrRow.ValueId ? String(mfrRow.ValueId).trim() : '';
+  const dbas = await fetchManufacturerDbas(mfrId, fetchImpl);
 
+  return extractVehicleSpecs(payload, { dbas });
+}

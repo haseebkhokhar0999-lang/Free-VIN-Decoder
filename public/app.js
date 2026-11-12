@@ -1,18 +1,29 @@
 const EXAMPLE_VIN = '1HGCM82633A004352';
 
-const RESULT_SECTIONS = [
-  {
-    title: 'General Vehicle Information',
-    keys: ['make', 'model', 'modelYear', 'trim', 'bodyClass'],
-  },
-  {
-    title: 'Engine Details',
-    keys: ['engine', 'fuelType', 'transmission', 'driveType'],
-  },
-  {
-    title: 'Plant Information',
-    keys: ['plantCountry', 'manufacturer'],
-  },
+const OTHER_INFO_FIELDS = [
+  { key: 'series', label: 'Series' },
+  { key: 'trim', label: 'Trim' },
+  { key: 'gvwr', label: 'Gross Vehicle Weight Rating' },
+  { key: 'driveType', label: 'Drive Type' },
+  { key: 'cylinders', label: 'Cylinders' },
+  { key: 'primaryFuelType', label: 'Primary Fuel Type' },
+  { key: 'electrificationLevel', label: 'Electrification Level' },
+  { key: 'secondaryFuelType', label: 'Secondary Fuel Type' },
+  { key: 'engineModel', label: 'Engine Model' },
+  { key: 'engineBrakeHp', label: 'Engine Brake (HP)' },
+  { key: 'engineManufacturer', label: 'Engine Manufacturer' },
+  { key: 'transmissionSpeed', label: 'Transmission Speed' },
+  { key: 'transmissionStyle', label: 'Transmission Style' },
+  { key: 'engineDisplacementL', label: 'Engine Displacement (L)' },
+];
+
+const AIRBAG_FIELDS = [
+  { key: 'front', label: 'Front' },
+  { key: 'knee', label: 'Knee' },
+  { key: 'side', label: 'Side' },
+  { key: 'curtain', label: 'Curtain' },
+  { key: 'seatCushion', label: 'Seat Cushion' },
+  { key: 'otherRestraintInfo', label: 'Other Restraint Info' },
 ];
 
 const form = document.getElementById('vin-form');
@@ -26,16 +37,46 @@ const loadingPanel = document.getElementById('loading-panel');
 const elapsedCounter = document.getElementById('elapsed-counter');
 const progressFill = document.getElementById('progress-fill');
 const progressCaption = document.getElementById('progress-caption');
+
 const resultsSection = document.getElementById('results-section');
+const makeLogo = document.getElementById('make-logo');
 const resultsHeading = document.getElementById('results-heading');
-const decodedVinBadge = document.getElementById('decoded-vin-badge');
+const exportPdfBtn = document.getElementById('export-pdf-btn');
+const errorStatusBanner = document.getElementById('error-status-banner');
+const statusIconSuccess = document.getElementById('status-icon-success');
+const statusIconWarning = document.getElementById('status-icon-warning');
+const errorStatusText = document.getElementById('error-status-text');
 const modelYearStatus = document.getElementById('model-year-status');
-const resultsWarning = document.getElementById('results-warning');
-const resultsGroups = document.getElementById('results-groups');
-const clearBtn = document.getElementById('clear-btn');
+
+const valManufacturer = document.getElementById('val-manufacturer');
+const valDbas = document.getElementById('val-dbas');
+const valVehicleType = document.getElementById('val-vehicle-type');
+const valModelYear = document.getElementById('val-model-year');
+const valMake = document.getElementById('val-make');
+const valModel = document.getElementById('val-model');
+const valBodyClass = document.getElementById('val-body-class');
+const vehicleDrawing = document.getElementById('vehicle-drawing');
+
+const toggleAllDetailsBtn = document.getElementById('toggle-all-details-btn');
+const backToSummaryBtn = document.getElementById('back-to-summary-btn');
+const otherInfoCard = document.getElementById('other-info-card');
+const otherInfoGrid = document.getElementById('other-info-grid');
+const airbagsList = document.getElementById('airbags-list');
+const valPlantInfo = document.getElementById('val-plant-info');
+
+const allDetailsCard = document.getElementById('all-details-card');
+const dtPageSize = document.getElementById('dt-page-size');
+const dtSearchInput = document.getElementById('dt-search-input');
+const allDetailsTbody = document.getElementById('all-details-tbody');
+const dtInfo = document.getElementById('dt-info');
+const dtPagination = document.getElementById('dt-pagination');
 
 let activeController = null;
 let loadingTimer = null;
+let allDetailsRows = [];
+let currentPage = 1;
+let pageSize = 10;
+let searchQuery = '';
 
 function normalizeVin(raw) {
   return String(raw || '').trim().toUpperCase();
@@ -135,7 +176,7 @@ function setLoading(isLoading) {
   }
 }
 
-function renderModelYearConfirmation(enteredYear, specByKey, warningText) {
+function renderModelYearConfirmation(enteredYear, decodedYear, warningText) {
   modelYearStatus.className = 'alert';
   modelYearStatus.textContent = '';
 
@@ -144,7 +185,6 @@ function renderModelYearConfirmation(enteredYear, specByKey, warningText) {
     return;
   }
 
-  const decodedYear = specByKey.get('modelYear')?.value || '';
   const hasYearMismatchWarning = /\b12\b|model year/i.test(warningText || '');
 
   if (decodedYear === enteredYear && !hasYearMismatchWarning) {
@@ -161,104 +201,196 @@ function renderModelYearConfirmation(enteredYear, specByKey, warningText) {
   modelYearStatus.hidden = false;
 }
 
-function createSectionElement(title, items) {
-  const section = document.createElement('section');
-  section.className = 'result-section';
+function setAllDetailsExpanded(expanded) {
+  allDetailsCard.hidden = !expanded;
+  otherInfoCard.hidden = expanded;
+  toggleAllDetailsBtn.setAttribute('aria-expanded', String(expanded));
+  toggleAllDetailsBtn.textContent = expanded ? 'Hide All Vehicle Details' : 'Show All Vehicle Details';
+}
 
-  const heading = document.createElement('h3');
-  heading.className = 'result-section-heading';
-  heading.textContent = title;
+function createPageButton(label, targetPage, { active = false, disabled = false } = {}) {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'dt-page-btn';
+  if (active) btn.classList.add('is-active');
+  btn.disabled = disabled;
+  btn.textContent = label;
+  if (!disabled && !active) {
+    btn.addEventListener('click', () => {
+      currentPage = targetPage;
+      renderAllDetailsTable();
+    });
+  }
+  return btn;
+}
 
-  const wrap = document.createElement('div');
-  wrap.className = 'table-wrap';
+function renderAllDetailsTable() {
+  const q = searchQuery.trim().toLowerCase();
+  const filtered = q
+    ? allDetailsRows.filter(
+        (row) =>
+          row.groupName.toLowerCase().includes(q) ||
+          row.element.toLowerCase().includes(q) ||
+          row.value.toLowerCase().includes(q)
+      )
+    : allDetailsRows;
 
-  const table = document.createElement('table');
-  table.className = 'specs-table';
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (currentPage > totalPages) currentPage = totalPages;
 
-  const tbody = document.createElement('tbody');
-  for (const spec of items) {
-    const row = document.createElement('tr');
-    const th = document.createElement('th');
-    th.scope = 'row';
-    th.textContent = spec.label;
+  const startIndex = total === 0 ? 0 : (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, total);
+  const pageRows = filtered.slice(startIndex, endIndex);
 
+  allDetailsTbody.textContent = '';
+
+  if (pageRows.length === 0) {
+    const tr = document.createElement('tr');
     const td = document.createElement('td');
-    td.textContent = spec.value;
-
-    row.append(th, td);
-    tbody.append(row);
+    td.colSpan = 3;
+    td.textContent = 'No matching vehicle details found.';
+    tr.append(td);
+    allDetailsTbody.append(tr);
+  } else {
+    for (const row of pageRows) {
+      const tr = document.createElement('tr');
+      const tdGroup = document.createElement('td');
+      tdGroup.textContent = row.groupName;
+      const tdEl = document.createElement('td');
+      tdEl.textContent = row.element;
+      const tdVal = document.createElement('td');
+      tdVal.textContent = row.value;
+      tr.append(tdGroup, tdEl, tdVal);
+      allDetailsTbody.append(tr);
+    }
   }
 
-  table.append(tbody);
-  wrap.append(table);
-  section.append(heading, wrap);
-  return section;
+  const baseInfo =
+    total === 0
+      ? 'Showing 0 to 0 of 0 entries'
+      : `Showing ${startIndex + 1} to ${endIndex} of ${total} entries`;
+  dtInfo.textContent = q ? `${baseInfo} (filtered from ${allDetailsRows.length} total entries)` : baseInfo;
+
+  dtPagination.textContent = '';
+  dtPagination.append(createPageButton('Previous', currentPage - 1, { disabled: currentPage <= 1 }));
+
+  const windowStart = Math.max(1, currentPage - 2);
+  const windowEnd = Math.min(totalPages, currentPage + 2);
+  for (let p = windowStart; p <= windowEnd; p += 1) {
+    dtPagination.append(createPageButton(String(p), p, { active: p === currentPage }));
+  }
+
+  dtPagination.append(createPageButton('Next', currentPage + 1, { disabled: currentPage >= totalPages }));
+}
+
+function renderOtherInfo(other) {
+  otherInfoGrid.textContent = '';
+  for (const field of OTHER_INFO_FIELDS) {
+    const item = document.createElement('div');
+    item.className = 'other-info-item';
+
+    const label = document.createElement('strong');
+    label.textContent = `${field.label}: `;
+
+    const value = document.createTextNode(other?.[field.key] || '');
+    item.append(label, value);
+    otherInfoGrid.append(item);
+  }
+
+  airbagsList.textContent = '';
+  const airbags = other?.airbags || {};
+  for (const field of AIRBAG_FIELDS) {
+    const li = document.createElement('li');
+    const label = document.createElement('strong');
+    label.textContent = `${field.label}: `;
+    const value = document.createTextNode(airbags[field.key] || '');
+    li.append(label, value);
+    airbagsList.append(li);
+  }
+
+  valPlantInfo.textContent = other?.plantInformation || '';
 }
 
 function renderResults(data, enteredYear) {
-  resultsGroups.textContent = '';
+  const header = data.header || {};
+  const mfg = data.manufacturerBlock || {};
 
-  resultsHeading.textContent = data.summary || 'Vehicle Specs';
-  decodedVinBadge.textContent = data.vin;
+  resultsHeading.textContent = header.title || data.summary || 'Vehicle Decoded';
 
-  const specs = Array.isArray(data.specs) ? data.specs : [];
-  const specByKey = new Map(specs.map((item) => [item.key, item]));
-
-  renderModelYearConfirmation(enteredYear, specByKey, data.warning);
-
-  if (data.warning) {
-    resultsWarning.textContent = `Registry note: ${data.warning}`;
-    resultsWarning.hidden = false;
+  if (header.makeLogoUrl) {
+    makeLogo.alt = mfg.make ? `${mfg.make} logo` : 'Make logo';
+    makeLogo.hidden = false;
+    makeLogo.src = header.makeLogoUrl;
   } else {
-    resultsWarning.textContent = '';
-    resultsWarning.hidden = true;
+    makeLogo.hidden = true;
+    makeLogo.removeAttribute('src');
   }
 
-  const assignedKeys = new Set();
-  for (const group of RESULT_SECTIONS) {
-    const groupItems = [];
-    for (const key of group.keys) {
-      const spec = specByKey.get(key);
-      if (spec) {
-        groupItems.push(spec);
-        assignedKeys.add(key);
-      }
-    }
-    if (groupItems.length > 0) {
-      resultsGroups.append(createSectionElement(group.title, groupItems));
-    }
+  const isClean = Boolean(data.isClean);
+  errorStatusBanner.className = `status-banner ${isClean ? 'status-success' : 'status-warning'}`;
+  statusIconSuccess.hidden = !isClean;
+  statusIconWarning.hidden = isClean;
+  errorStatusText.textContent = data.errorText || data.warning || '0 - VIN decoded clean.';
+
+  renderModelYearConfirmation(enteredYear, mfg.modelYear || '', data.warning);
+
+  valManufacturer.textContent = '';
+  if (mfg.manufacturer && mfg.manufacturerUrl) {
+    const link = document.createElement('a');
+    link.href = mfg.manufacturerUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = mfg.manufacturer;
+    valManufacturer.append(link);
+  } else {
+    valManufacturer.textContent = mfg.manufacturer || '';
   }
 
-  const extraItems = specs.filter((item) => !assignedKeys.has(item.key));
-  if (extraItems.length > 0) {
-    const firstSection = resultsGroups.querySelector('.result-section tbody');
-    if (firstSection) {
-      for (const spec of extraItems) {
-        const row = document.createElement('tr');
-        const th = document.createElement('th');
-        th.scope = 'row';
-        th.textContent = spec.label;
-        const td = document.createElement('td');
-        td.textContent = spec.value;
-        row.append(th, td);
-        firstSection.append(row);
-      }
-    } else {
-      resultsGroups.prepend(createSectionElement('General Vehicle Information', extraItems));
-    }
+  valDbas.textContent = mfg.dbas || '';
+  valVehicleType.textContent = mfg.vehicleType || '';
+  valModelYear.textContent = mfg.modelYear || '';
+  valMake.textContent = mfg.make || '';
+  valModel.textContent = mfg.model || '';
+  valBodyClass.textContent = mfg.bodyClass || '';
+
+  if (header.vehicleImageUrl) {
+    vehicleDrawing.alt = mfg.bodyClass ? `${mfg.bodyClass} illustration` : 'Vehicle illustration';
+    vehicleDrawing.hidden = false;
+    vehicleDrawing.src = header.vehicleImageUrl;
+  } else {
+    vehicleDrawing.hidden = true;
+    vehicleDrawing.removeAttribute('src');
   }
+
+  renderOtherInfo(data.otherInfo);
+
+  allDetailsRows = Array.isArray(data.allDetails) ? data.allDetails : [];
+  currentPage = 1;
+  searchQuery = '';
+  dtSearchInput.value = '';
+  dtPageSize.value = String(pageSize);
+  renderAllDetailsTable();
+  setAllDetailsExpanded(false);
 
   resultsSection.hidden = false;
 }
 
 function hideResults() {
   resultsSection.hidden = true;
-  resultsGroups.textContent = '';
   modelYearStatus.hidden = true;
-  resultsWarning.hidden = true;
+  allDetailsRows = [];
 }
 
-async function decodeVin(rawVin, rawModelYear = '') {
+function syncResultsUrl(vin, modelYear) {
+  const params = new URLSearchParams({ vin, modelYear: modelYear || '' });
+  const target = `/decode?${params.toString()}`;
+  if (window.location.pathname + window.location.search !== target) {
+    window.history.pushState({ vin, modelYear: modelYear || '' }, '', target);
+  }
+}
+
+async function decodeVin(rawVin, rawModelYear = '', { pushUrl = true } = {}) {
   const check = validateVinInput(rawVin);
   vinInput.value = check.vin;
 
@@ -276,6 +408,10 @@ async function decodeVin(rawVin, rawModelYear = '') {
     showError(yearCheck.error);
     modelYearInput.focus();
     return;
+  }
+
+  if (pushUrl) {
+    syncResultsUrl(check.vin, yearCheck.year);
   }
 
   if (activeController) {
@@ -316,7 +452,7 @@ async function decodeVin(rawVin, rawModelYear = '') {
       return;
     }
 
-    if (!payload || !Array.isArray(payload.specs) || payload.specs.length === 0) {
+    if (!payload || !payload.manufacturerBlock) {
       showError('No populated vehicle specifications were returned for this VIN.');
       return;
     }
@@ -332,6 +468,53 @@ async function decodeVin(rawVin, rawModelYear = '') {
     setLoading(false);
   }
 }
+
+function loadFromCurrentUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const vinParam = params.get('vin') || '';
+  const yearParam = params.get('modelYear') || params.get('modelyear') || '';
+
+  if (vinParam.trim()) {
+    vinInput.value = normalizeVin(vinParam);
+    modelYearInput.value = yearParam.replace(/\D/g, '').slice(0, 4);
+    decodeVin(vinInput.value, modelYearInput.value, { pushUrl: false });
+  } else {
+    clearError();
+    hideResults();
+  }
+}
+
+makeLogo.addEventListener('error', () => {
+  makeLogo.hidden = true;
+});
+
+vehicleDrawing.addEventListener('error', () => {
+  vehicleDrawing.hidden = true;
+});
+
+exportPdfBtn.addEventListener('click', () => {
+  window.print();
+});
+
+toggleAllDetailsBtn.addEventListener('click', () => {
+  setAllDetailsExpanded(allDetailsCard.hidden);
+});
+
+backToSummaryBtn.addEventListener('click', () => {
+  setAllDetailsExpanded(false);
+});
+
+dtPageSize.addEventListener('change', () => {
+  pageSize = Number(dtPageSize.value) || 10;
+  currentPage = 1;
+  renderAllDetailsTable();
+});
+
+dtSearchInput.addEventListener('input', () => {
+  searchQuery = dtSearchInput.value;
+  currentPage = 1;
+  renderAllDetailsTable();
+});
 
 vinInput.addEventListener('input', () => {
   const pos = vinInput.selectionStart;
@@ -368,10 +551,5 @@ exampleBtn.addEventListener('click', () => {
   decodeVin(EXAMPLE_VIN, '');
 });
 
-clearBtn.addEventListener('click', () => {
-  vinInput.value = '';
-  modelYearInput.value = '';
-  clearError();
-  hideResults();
-  vinInput.focus();
-});
+window.addEventListener('popstate', loadFromCurrentUrl);
+loadFromCurrentUrl();

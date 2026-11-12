@@ -57,6 +57,13 @@ export function createApp({ fetchImpl } = {}) {
         ...(modelYear ? { requestedModelYear: modelYear } : {}),
         summary: result.summary,
         warning: result.warning,
+        errorCode: result.errorCode,
+        errorText: result.errorText,
+        isClean: result.isClean,
+        header: result.header,
+        manufacturerBlock: result.manufacturerBlock,
+        otherInfo: result.otherInfo,
+        allDetails: result.allDetails,
         specs: result.specs,
         source: 'NHTSA vPIC API',
       });
@@ -77,6 +84,10 @@ export function createApp({ fetchImpl } = {}) {
 
   app.get('/api/decode', handleDecode);
   app.get('/api/decode/:vin', handleDecode);
+
+  app.get('/decode', (_req, res) => {
+    res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+  });
 
   app.get('/', (_req, res) => {
     res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
