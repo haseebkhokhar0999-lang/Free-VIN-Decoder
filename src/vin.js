@@ -231,8 +231,13 @@ export class NhtsaApiError extends Error {
   }
 }
 
-export async function decodeVinFromNhtsa(vin, { fetchImpl = fetch, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
-  const url = `${NHTSA_DECODE_BASE_URL}/${encodeURIComponent(vin)}?format=json`;
+export async function decodeVinFromNhtsa(
+  vin,
+  { modelYear = '', fetchImpl = fetch, timeoutMs = DEFAULT_TIMEOUT_MS } = {}
+) {
+  const cleanYear = typeof modelYear === 'string' && /^\d{4}$/.test(modelYear.trim()) ? modelYear.trim() : '';
+  const query = cleanYear ? `?format=json&modelyear=${encodeURIComponent(cleanYear)}` : '?format=json';
+  const url = `${NHTSA_DECODE_BASE_URL}/${encodeURIComponent(vin)}${query}`;
 
   let response;
   try {

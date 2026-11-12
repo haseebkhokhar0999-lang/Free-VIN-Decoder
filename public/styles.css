@@ -11,6 +11,9 @@
   --error-bg: #fef2f2;
   --error-border: #fecaca;
   --error-text: #991b1b;
+  --success-bg: #f0fdf4;
+  --success-border: #bbf7d0;
+  --success-text: #166534;
   --warning-bg: #fffbeb;
   --warning-border: #fde68a;
   --warning-text: #92400e;
@@ -150,38 +153,65 @@ body {
   color: var(--error-text);
 }
 
-.input-row {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.fields-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
-#vin-input {
+.field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.optional-tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+#vin-input,
+#model-year-input {
   width: 100%;
   min-height: 50px;
   padding: 12px 14px;
   border: 2px solid var(--border);
   border-radius: 10px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 1.08rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 1.05rem;
   color: var(--text);
   background: #ffffff;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-#vin-input::placeholder {
+#vin-input {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#model-year-input {
+  font-family: inherit;
+  font-size: 0.98rem;
+}
+
+#vin-input::placeholder,
+#model-year-input::placeholder {
   text-transform: none;
   letter-spacing: normal;
   color: #94a3b8;
-  font-size: 0.95rem;
+  font-size: 0.94rem;
 }
 
-#vin-input:focus {
+#vin-input:focus,
+#model-year-input:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(20, 83, 184, 0.15);
+}
+
+.btn-full {
+  width: 100%;
 }
 
 .btn-primary {
@@ -288,6 +318,14 @@ body {
   background: var(--error-bg);
   border: 1px solid var(--error-border);
   color: var(--error-text);
+}
+
+.alert-success {
+  margin-top: 0;
+  margin-bottom: 14px;
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success-text);
 }
 
 .alert-warning {
@@ -408,11 +446,34 @@ body {
   border-color: #cbd5e1;
 }
 
+.results-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.result-section {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.result-section-heading {
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text);
+}
+
 .table-wrap {
   width: 100%;
   overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: 10px;
 }
 
 .specs-table {
@@ -517,13 +578,9 @@ body {
     padding: 28px;
   }
 
-  .input-row {
-    flex-direction: row;
-    align-items: stretch;
-  }
-
-  #vin-input {
-    flex: 1;
+  .fields-grid {
+    grid-template-columns: 1fr 220px;
+    align-items: start;
   }
 
   .info-grid {

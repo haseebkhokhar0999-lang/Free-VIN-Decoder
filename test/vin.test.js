@@ -140,9 +140,11 @@ test('extractVehicleSpecs marks record as not found when core fields are missing
   assert.deepEqual(extracted.specs, []);
 });
 
-test('HTTP routes handle homepage, valid decode, invalid VIN, VIN not found, and NHTSA unreachable', async () => {
+test('HTTP routes handle homepage, valid decode, optional modelyear, invalid VIN, VIN not found, and NHTSA unreachable', async () => {
   let mockMode = 'ok';
-  const mockFetch = async () => {
+  let lastRequestedUrl = '';
+  const mockFetch = async (url) => {
+    lastRequestedUrl = url;
     if (mockMode === 'network_error') {
       throw new Error('ECONNREFUSED');
     }
@@ -191,9 +193,15 @@ test('HTTP routes handle homepage, valid decode, invalid VIN, VIN not found, and
   const okRes = await dispatchRequest(app, 'GET', `/api/decode?vin=${EXAMPLE_VIN}`);
   assert.equal(okRes.status, 200);
   assert.equal(okRes.headers['cache-control'], 'no-store');
+  assert.equal(lastRequestedUrl.includes('modelyear='), false);
   const okJson = okRes.json();
   assert.equal(okJson.vin, EXAMPLE_VIN);
   assert.equal(okJson.specs.length, 4);
+
+  const yearRes = await dispatchRequest(app, 'GET', `/api/decode?vin=${EXAMPLE_VIN}&modelyear=2003`);
+  assert.equal(yearRes.status, 200);
+  assert.equal(lastRequestedUrl.includes('modelyear=2003'), true);
+  assert.equal(yearRes.json().requestedModelYear, '2003');
 
   mockMode = 'not_found';
   const notFoundRes = await dispatchRequest(app, 'GET', '/api/decode?vin=11111111111111111');

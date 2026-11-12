@@ -141,3 +141,4 @@ if (isDirectExecution) {
     if (!res.success) process.exit(1);
   })();
 }
+

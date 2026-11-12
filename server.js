@@ -29,6 +29,10 @@ export function createApp({ fetchImpl } = {}) {
     const rawParam = req.params.vin ?? (Array.isArray(req.query.vin) ? req.query.vin[0] : req.query.vin);
     const validation = validateVin(typeof rawParam === 'string' ? rawParam : '');
 
+    const rawYear = Array.isArray(req.query.modelyear) ? req.query.modelyear[0] : req.query.modelyear;
+    const modelYear =
+      typeof rawYear === 'string' && /^\d{4}$/.test(rawYear.trim()) ? rawYear.trim() : '';
+
     if (!validation.valid) {
       return res.status(400).json({
         error: 'INVALID_VIN',
@@ -37,7 +41,7 @@ export function createApp({ fetchImpl } = {}) {
     }
 
     try {
-      const result = await decodeVinFromNhtsa(validation.vin, { fetchImpl });
+      const result = await decodeVinFromNhtsa(validation.vin, { modelYear, fetchImpl });
 
       if (!result.found) {
         return res.status(404).json({
@@ -50,6 +54,7 @@ export function createApp({ fetchImpl } = {}) {
 
       return res.json({
         vin: validation.vin,
+        ...(modelYear ? { requestedModelYear: modelYear } : {}),
         summary: result.summary,
         warning: result.warning,
         specs: result.specs,

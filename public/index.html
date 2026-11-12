@@ -6,7 +6,7 @@
     <title>Free VIN Decoder — Instant Vehicle Specs Lookup</title>
     <meta
       name="description"
-      content="Decode any 17-character VIN for free using the official NHTSA vPIC database. Instant factory specs with no signup and no VIN storage."
+      content="Decode any 17-character VIN for free to look up vehicle specs, engine details, and plant information with no signup and no VIN storage."
     />
     <link rel="stylesheet" href="/styles.css" />
   </head>
@@ -26,37 +26,56 @@
         <div class="hero-copy">
           <h1 id="hero-title">Free 17-Character VIN Decoder</h1>
           <p class="hero-subtitle">
-            Enter a vehicle identification number to look up factory specifications directly from the public NHTSA vPIC database.
+            Decode any VIN to identify the vehicle, verify its model year, and review factory specifications including body class, engine details, and assembly plant information.
           </p>
         </div>
 
         <form id="vin-form" class="vin-form" novalidate>
-          <div class="input-header">
-            <label for="vin-input" class="input-label">Vehicle Identification Number (VIN)</label>
-            <span id="vin-counter" class="char-counter" aria-live="polite">0 / 17</span>
+          <div class="fields-grid">
+            <div class="field-group field-vin">
+              <div class="input-header">
+                <label for="vin-input" class="input-label">Vehicle Identification Number (VIN)</label>
+                <span id="vin-counter" class="char-counter" aria-live="polite">0 / 17</span>
+              </div>
+              <input
+                id="vin-input"
+                name="vin"
+                type="text"
+                inputmode="text"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                placeholder="e.g. 1HGCM82633A004352"
+                aria-describedby="vin-hint vin-error"
+              />
+            </div>
+
+            <div class="field-group field-year">
+              <div class="input-header">
+                <label for="model-year-input" class="input-label">Model Year</label>
+                <span class="optional-tag">Optional</span>
+              </div>
+              <input
+                id="model-year-input"
+                name="modelyear"
+                type="text"
+                inputmode="numeric"
+                maxlength="4"
+                autocomplete="off"
+                placeholder="Vehicle's Model Year"
+                aria-describedby="vin-hint vin-error"
+              />
+            </div>
           </div>
 
-          <div class="input-row">
-            <input
-              id="vin-input"
-              name="vin"
-              type="text"
-              inputmode="text"
-              autocomplete="off"
-              autocapitalize="characters"
-              spellcheck="false"
-              placeholder="e.g. 1HGCM82633A004352"
-              aria-describedby="vin-hint vin-error"
-            />
-            <button id="decode-btn" type="submit" class="btn-primary">
-              <span class="btn-spinner" aria-hidden="true"></span>
-              <span class="btn-label">Decode VIN</span>
-            </button>
-          </div>
+          <button id="decode-btn" type="submit" class="btn-primary btn-full">
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span class="btn-label">Decode VIN</span>
+          </button>
 
           <div class="form-meta">
             <p id="vin-hint" class="input-hint">
-              Exactly 17 characters. Letters <strong>I</strong>, <strong>O</strong>, and <strong>Q</strong> are never used in a VIN.
+              VIN must be 17 characters (letters <strong>I</strong>, <strong>O</strong>, and <strong>Q</strong> are never used). Add a 4-digit model year to confirm it, or leave blank to decode by VIN only.
             </p>
             <button id="example-vin-btn" type="button" class="example-link">
               Try example VIN: <code>1HGCM82633A004352</code>
@@ -69,7 +88,7 @@
             <div class="loading-top">
               <span class="loading-status">
                 <span class="inline-spinner" aria-hidden="true"></span>
-                <span>Fetching factory specs from NHTSA vPIC…</span>
+                <span>Fetching factory specs from vehicle records…</span>
               </span>
               <span id="elapsed-counter" class="elapsed-counter">0.0s</span>
             </div>
@@ -84,7 +103,7 @@
       <section id="results-section" class="results-card" aria-labelledby="results-heading" hidden>
         <div class="results-header">
           <div>
-            <p class="results-eyebrow">Factory Specifications</p>
+            <p class="results-eyebrow">Decoded Vehicle Record</p>
             <h2 id="results-heading" class="results-title">Vehicle Specs</h2>
           </div>
           <div class="results-actions">
@@ -93,31 +112,24 @@
           </div>
         </div>
 
+        <div id="model-year-status" class="alert" role="status" hidden></div>
         <div id="results-warning" class="alert alert-warning" role="note" hidden></div>
 
-        <div class="table-wrap">
-          <table class="specs-table">
-            <thead>
-              <tr>
-                <th scope="col">Specification</th>
-                <th scope="col">Value</th>
-              </tr>
-            </thead>
-            <tbody id="specs-tbody"></tbody>
-          </table>
-        </div>
+        <div id="results-groups" class="results-groups"></div>
 
-        <p class="results-source">Source: NHTSA vPIC API (factory specifications only — empty fields omitted).</p>
+        <p class="results-source">
+          Information is reported by the vehicle manufacturer through public registry data. Spec availability depends on model year and market; empty fields are omitted, and accident, title, or ownership history is not included.
+        </p>
       </section>
 
       <section class="info-grid" aria-label="VIN Decoder Guide">
         <article class="info-card">
           <h2>What a VIN Decode Shows</h2>
           <p>
-            Decoding a 17-character VIN returns factory-built details such as make, model, model year, trim, body class, engine, fuel type, transmission, drive type, assembly country, and manufacturer.
+            Decoding a 17-character VIN returns factory-built details such as make, model, model year, trim, body class, engine specifications, fuel type, transmission, drive type, assembly country, and manufacturer.
           </p>
           <p class="muted-note">
-            Factory specs only — accident history, salvage records, odometer readings, liens, and ownership records are not part of a VIN decode. Vehicles built before 1981 or outside the US market may not appear in NHTSA records.
+            Factory specs only — accident history, salvage records, odometer readings, liens, and ownership records are not part of a VIN decode. Vehicles built before 1981 or outside the US market may not appear in public records.
           </p>
         </article>
 
@@ -146,4 +158,3 @@
     <script src="/app.js" defer></script>
   </body>
 </html>
-
