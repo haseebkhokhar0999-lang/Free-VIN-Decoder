@@ -416,28 +416,127 @@
         </div>
       </section>
 
-      <section class="info-grid" aria-label="VIN Decoder Guide">
-        <article class="info-card">
-          <h2>What a VIN Decode Shows</h2>
-          <p>
-            Decoding a 17-character VIN returns factory-built details such as make, model, model year, trim, body class, engine specifications, fuel type, transmission, drive type, assembly country, and manufacturer.
-          </p>
-          <p class="muted-note">
-            Factory specs only — accident history, salvage records, odometer readings, liens, and ownership records are not part of a VIN decode. Vehicles built before 1981 or outside the US market may not appear in public records.
-          </p>
-        </article>
-
-        <article class="info-card">
-          <h2>Where to Find Your VIN</h2>
+      <section class="content-card" aria-labelledby="decode-specific-vin-heading">
+        <h2 id="decode-specific-vin-heading">Decode a Specific VIN</h2>
+        <p>
+          Decoding a 17-character or partial VIN returns factory-reported vehicle specifications from public NHTSA vPIC records, including:
+        </p>
+        <div class="other-info-grid">
           <ul class="guide-list">
-            <li><strong>Dashboard:</strong> Lower-left corner on the driver’s side, visible through the windshield.</li>
-            <li><strong>Door jamb:</strong> Sticker inside the driver-side door frame near the latch.</li>
-            <li><strong>Documents:</strong> Listed on your vehicle registration card, title, and auto insurance policy.</li>
+            <li>Model Year</li>
+            <li>Make</li>
+            <li>Model</li>
+            <li>Series</li>
+            <li>Trim</li>
+            <li>Vehicle Type</li>
+            <li>Body Class</li>
+            <li>Gross Vehicle Weight Rating</li>
+            <li>Engine (Model, Cylinders, Displacement, Horsepower, Manufacturer)</li>
           </ul>
-          <p class="muted-note">
-            Your privacy: entered VINs are used only for the lookup and are never stored by this site.
-          </p>
-        </article>
+          <ul class="guide-list">
+            <li>Fuel Type (Primary, Secondary, and Electrification Level)</li>
+            <li>Transmission (Speed and Style)</li>
+            <li>Drive Type</li>
+            <li>Airbags &amp; Restraints (Front, Knee, Side, Curtain, Seat Cushion, Other Restraint Info)</li>
+            <li>Manufacturer &amp; DBAs</li>
+            <li>Plant Country, State &amp; City</li>
+            <li>Plus all additional reported vPIC factory fields under <strong>All Vehicle Details</strong></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="content-card" aria-labelledby="decode-model-year-heading">
+        <h2 id="decode-model-year-heading">Decode a Specific Model Year</h2>
+        <p>
+          Standard 17-character VINs cover model years <strong>1981 to 2026</strong>. Enter a VIN above along with an optional model year to confirm or disambiguate the year encoded at position 10:
+        </p>
+        <div class="recall-form-grid">
+          <ul class="guide-list">
+            <li>1981</li>
+            <li>1982</li>
+            <li>1983</li>
+            <li>1984</li>
+            <li>1985</li>
+            <li>1986</li>
+            <li>1987</li>
+            <li>1988</li>
+            <li>1989</li>
+            <li>1990</li>
+            <li>1991</li>
+            <li>1992</li>
+            <li>1993</li>
+            <li>1994</li>
+            <li>1995</li>
+            <li>1996</li>
+          </ul>
+          <ul class="guide-list">
+            <li>1997</li>
+            <li>1998</li>
+            <li>1999</li>
+            <li>2000</li>
+            <li>2001</li>
+            <li>2002</li>
+            <li>2003</li>
+            <li>2004</li>
+            <li>2005</li>
+            <li>2006</li>
+            <li>2007</li>
+            <li>2008</li>
+            <li>2009</li>
+            <li>2010</li>
+            <li>2011</li>
+          </ul>
+          <ul class="guide-list">
+            <li>2012</li>
+            <li>2013</li>
+            <li>2014</li>
+            <li>2015</li>
+            <li>2016</li>
+            <li>2017</li>
+            <li>2018</li>
+            <li>2019</li>
+            <li>2020</li>
+            <li>2021</li>
+            <li>2022</li>
+            <li>2023</li>
+            <li>2024</li>
+            <li>2025</li>
+            <li>2026</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="content-card" aria-labelledby="more-info-heading">
+        <h2 id="more-info-heading">More Information</h2>
+        <p>
+          The information shown in each VIN decode is reported by the vehicle manufacturer; for further details, contact the manufacturer or check the certification label affixed to the vehicle, or see the
+          <a
+            href="https://www.nhtsa.gov/part-583-american-automobile-labeling-act-reports/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Part 583 American Automobile Labeling Act Reports</a>
+          page. For U.S. Electric Vehicle Tax Credit eligibility and guidance, see resources from the
+          <a
+            href="https://afdc.energy.gov/laws/inflation-reduction-act/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >U.S. Department of Energy</a>,
+          <a
+            href="https://home.treasury.gov/news/press-releases/jy0923/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >U.S. Department of the Treasury</a>,
+          <a
+            href="https://www.irs.gov/credits-deductions/individuals/plug-in-electric-drive-vehicle-credit-section-30d/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Internal Revenue Service</a>, and the Treasury
+          <a
+            href="https://home.treasury.gov/system/files/136/EV-Tax-Credit-FAQs.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+          >FAQs</a>.
+        </p>
       </section>
     </main>
 
