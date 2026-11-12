@@ -280,8 +280,8 @@ test('HTTP routes handle homepage, recalls, make pages, policy/info pages, conta
   assert.equal(homeRes.status, 200);
   assert.match(homeRes.body, /Free VIN Decoder is an independent, unofficial tool\./);
   assert.match(homeRes.body, /Open Safety Recalls/);
-  assert.match(homeRes.body, /Official NHTSA Data/);
-  assert.match(homeRes.body, /VINs Never Stored/);
+  assert.match(homeRes.body, /Powered by NHTSA data/);
+  assert.match(homeRes.body, /Free – no email required/);
   assert.match(homeRes.body, /&copy; 2026 Free VIN Decoder/);
   assert.match(homeRes.body, /id="decoder"/);
 

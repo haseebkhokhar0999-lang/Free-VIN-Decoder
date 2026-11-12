@@ -101,7 +101,7 @@ function renderRecallCheckPage() {
           Results on this page come from the public NHTSA Recalls API by make, model, and model year. A vehicle-level match shows campaigns issued for that model line, not whether a repair has already been completed on a specific car.
         </p>
         <p>
-          Only unrepaired recalls remain open for an individual vehicle, and recalls older than 15 years may not appear in recall API results. To check whether a specific 17-character VIN still has unrepaired open recalls, visit the official
+          Only unrepaired recalls remain open for an individual vehicle, and recalls older than 15 years may not appear in recall API results. To check whether a specific 17-character VIN still has unrepaired open recalls, visit the
           <a href="https://www.nhtsa.gov/recalls" target="_blank" rel="noopener noreferrer">NHTSA Recalls VIN Lookup (nhtsa.gov)</a>. This site does not replace NHTSA’s VIN-level recall check.
         </p>
       </section>`;
@@ -202,10 +202,10 @@ function renderContactPage() {
           <div id="contact-status" class="alert" role="status" hidden></div>
         </form>
 
-        <h2>Official Resources for Vehicle &amp; Recall Checks</h2>
+        <h2>Government &amp; Industry Vehicle Lookup Resources</h2>
         <ul class="guide-list">
           <li>
-            <strong>Official VIN Recall Lookup:</strong> Check unrepaired recalls on a specific VIN at
+            <strong>NHTSA VIN Recall Lookup:</strong> Check unrepaired recalls on a specific VIN at
             <a href="https://www.nhtsa.gov/recalls" target="_blank" rel="noopener noreferrer">NHTSA.gov/recalls</a>.
           </li>
           <li>
@@ -218,7 +218,7 @@ function renderContactPage() {
   return renderDocumentLayout({
     activePath: '/contact',
     title: 'Contact — Free VIN Decoder',
-    description: 'Send website feedback to Free VIN Decoder or find official NHTSA and NICB vehicle lookup resources.',
+    description: 'Send website feedback to Free VIN Decoder or find NHTSA and NICB vehicle lookup resources.',
     mainHtml,
     extraScripts: ['/contact.js'],
   });
@@ -315,7 +315,7 @@ function renderTermsPage() {
   return renderDocumentLayout({
     activePath: '/terms',
     title: 'Terms of Use — Free VIN Decoder',
-    description: 'Terms of use for Free VIN Decoder: free informational lookups with no warranty and no official affiliation.',
+    description: 'Terms of use for Free VIN Decoder: free informational lookups with no warranty and no agency or automaker affiliation.',
     mainHtml,
   });
 }
@@ -332,7 +332,7 @@ function renderFaqPage() {
     },
     {
       q: 'What does a VIN decode NOT show?',
-      a: 'It does NOT show accident history, salvage or flood title brands, odometer readings or mileage rollbacks, theft records, liens, service records, or prior ownership history. Those details live in paid vehicle history reports or official theft/title checks.',
+      a: 'It does NOT show accident history, salvage or flood title brands, odometer readings or mileage rollbacks, theft records, liens, service records, or prior ownership history. Those details live in paid vehicle history reports or state/insurer theft and title checks.',
     },
     {
       q: 'Where can I find my vehicle’s VIN?',
@@ -524,10 +524,10 @@ function renderVinVsHistoryPage() {
           If your free VIN decode confirms the car’s specs match the seller’s listing, a paid report from established providers such as <strong>Carfax</strong>, <strong>AutoCheck</strong>, <strong>VinAudit</strong>, or <strong>ClearVIN</strong> pulls state title brands, odometer logs, insurance total-loss data, and reported collision history.
         </p>
 
-        <h2>Free Official Supplemental Checks</h2>
+        <h2>Free Supplemental Checks</h2>
         <ul class="guide-list">
           <li>
-            <strong>Official NHTSA Recall Lookup by VIN:</strong> Check whether a specific VIN has unrepaired safety recalls at
+            <strong>NHTSA Recall Lookup by VIN:</strong> Check whether a specific VIN has unrepaired safety recalls at
             <a href="https://www.nhtsa.gov/recalls" target="_blank" rel="noopener noreferrer">nhtsa.gov/recalls</a>.
           </li>
           <li>
