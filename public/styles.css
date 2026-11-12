@@ -38,6 +38,7 @@ html {
   scroll-behavior: smooth;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 body {
@@ -47,6 +48,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg);
   color: var(--text);
@@ -62,16 +64,15 @@ body {
 }
 
 .site-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  width: 100%;
+  position: static;
+  width: 100vw;
   margin: 0;
+  margin-left: calc(50% - 50vw);
   padding: 0;
-  background: #000000;
+  background: #38bdf8;
   color: #ffffff;
-  border-bottom: 1px solid #262626;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid #0ea5e9;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.18);
 }
 
 .site-header .container,
@@ -125,9 +126,9 @@ body {
   width: 42px;
   height: 42px;
   padding: 8px;
-  border: 1px solid #333333;
+  border: 1px solid #0ea5e9;
   border-radius: 8px;
-  background: #1a1a1a;
+  background: #0284c7;
   color: #ffffff;
   cursor: pointer;
 }
@@ -144,7 +145,7 @@ body {
   display: none;
   width: 100%;
   padding-top: 8px;
-  border-top: 1px solid #262626;
+  border-top: 1px solid #0ea5e9;
 }
 
 .site-nav.is-open {
@@ -183,7 +184,7 @@ body {
 .nav-link:hover,
 .nav-link:focus-visible,
 .nav-link.is-active {
-  background: #1a1a1a;
+  background: #0284c7;
   color: #ffffff;
 }
 
@@ -202,7 +203,7 @@ body {
   list-style: none;
   margin: 4px 0 4px 12px;
   padding: 4px 0;
-  border-left: 2px solid #333333;
+  border-left: 2px solid #0ea5e9;
 }
 
 .dropdown-menu.is-open {
@@ -212,7 +213,7 @@ body {
 .dropdown-link {
   display: block;
   padding: 8px 14px;
-  color: #f3f4f6;
+  color: #ffffff;
   font-size: 0.92rem;
   font-weight: 500;
   text-decoration: none;
@@ -222,7 +223,7 @@ body {
 .dropdown-link:hover,
 .dropdown-link:focus-visible,
 .dropdown-link.is-active {
-  background: #1a1a1a;
+  background: #0284c7;
   color: #ffffff;
 }
 
@@ -1119,11 +1120,12 @@ body {
 }
 
 .site-footer {
-  width: 100%;
+  width: 100vw;
   margin: 0;
-  background: #000000;
+  margin-left: calc(50% - 50vw);
+  background: #38bdf8;
   color: #ffffff;
-  border-top: 1px solid #262626;
+  border-top: 1px solid #0ea5e9;
   padding: 48px 0 30px;
 }
 
@@ -1132,7 +1134,7 @@ body {
   grid-template-columns: 1fr;
   gap: 28px 32px;
   padding-bottom: 30px;
-  border-bottom: 1px solid #262626;
+  border-bottom: 1px solid #0ea5e9;
 }
 
 .footer-brand {
@@ -1149,14 +1151,14 @@ body {
   margin: 0 0 12px;
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #f3f4f6;
+  color: #ffffff;
 }
 
 .footer-disclaimer-inline {
   margin: 0;
   font-size: 0.88rem;
   line-height: 1.55;
-  color: #d1d5db;
+  color: #ffffff;
 }
 
 .footer-heading {
@@ -1179,7 +1181,7 @@ body {
 }
 
 .footer-links a {
-  color: #f3f4f6;
+  color: #ffffff;
   font-size: 0.95rem;
   text-decoration: none;
 }
@@ -1208,7 +1210,7 @@ body {
 .footer-disclaimer {
   margin: 0;
   font-size: 0.86rem;
-  color: #d1d5db;
+  color: #ffffff;
 }
 
 @media (min-width: 640px) {
@@ -1306,10 +1308,10 @@ body {
     margin: 0;
     padding: 6px;
     border-left: none;
-    border: 1px solid #262626;
+    border: 1px solid #0ea5e9;
     border-radius: 8px;
-    background: #000000;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+    background: #38bdf8;
+    box-shadow: 0 10px 24px rgba(2, 132, 199, 0.28);
     z-index: 120;
   }
 
