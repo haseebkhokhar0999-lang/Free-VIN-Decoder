@@ -89,9 +89,9 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px 18px;
-  min-height: 74px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  min-height: 88px;
+  padding-top: 14px;
+  padding-bottom: 14px;
 }
 
 .brand {
@@ -724,11 +724,6 @@ body {
 
 .nhtsa-card-html {
   scroll-behavior: smooth;
-}
-
-body {
-  padding: 18px;
-  background: #ffffff;
 }
 
 .status-banner {
