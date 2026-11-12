@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Free VIN Decoder — Instant Vehicle Specs Lookup</title>
+    <meta
+      name="description"
+      content="Decode any 17-character VIN for free using the official NHTSA vPIC database. Instant factory specs with no signup and no VIN storage."
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="/" class="brand">
+          <span class="brand-mark" aria-hidden="true">VIN</span>
+          <span class="brand-name">Free VIN Decoder</span>
+        </a>
+        <span class="header-badge">Free • No Signup</span>
+      </div>
+    </header>
+
+    <main class="container main-content">
+      <section class="hero-card" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <h1 id="hero-title">Free 17-Character VIN Decoder</h1>
+          <p class="hero-subtitle">
+            Enter a vehicle identification number to look up factory specifications directly from the public NHTSA vPIC database.
+          </p>
+        </div>
+
+        <form id="vin-form" class="vin-form" novalidate>
+          <div class="input-header">
+            <label for="vin-input" class="input-label">Vehicle Identification Number (VIN)</label>
+            <span id="vin-counter" class="char-counter" aria-live="polite">0 / 17</span>
+          </div>
+
+          <div class="input-row">
+            <input
+              id="vin-input"
+              name="vin"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              placeholder="e.g. 1HGCM82633A004352"
+              aria-describedby="vin-hint vin-error"
+            />
+            <button id="decode-btn" type="submit" class="btn-primary">
+              <span class="btn-spinner" aria-hidden="true"></span>
+              <span class="btn-label">Decode VIN</span>
+            </button>
+          </div>
+
+          <div class="form-meta">
+            <p id="vin-hint" class="input-hint">
+              Exactly 17 characters. Letters <strong>I</strong>, <strong>O</strong>, and <strong>Q</strong> are never used in a VIN.
+            </p>
+            <button id="example-vin-btn" type="button" class="example-link">
+              Try example VIN: <code>1HGCM82633A004352</code>
+            </button>
+          </div>
+
+          <div id="vin-error" class="alert alert-error" role="alert" hidden></div>
+
+          <div id="loading-panel" class="loading-panel" role="status" aria-live="polite" hidden>
+            <div class="loading-top">
+              <span class="loading-status">
+                <span class="inline-spinner" aria-hidden="true"></span>
+                <span>Fetching factory specs from NHTSA vPIC…</span>
+              </span>
+              <span id="elapsed-counter" class="elapsed-counter">0.0s</span>
+            </div>
+            <div class="progress-track" aria-hidden="true">
+              <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <p id="progress-caption" class="progress-caption">Estimated progress: 0%</p>
+          </div>
+        </form>
+      </section>
+
+      <section id="results-section" class="results-card" aria-labelledby="results-heading" hidden>
+        <div class="results-header">
+          <div>
+            <p class="results-eyebrow">Factory Specifications</p>
+            <h2 id="results-heading" class="results-title">Vehicle Specs</h2>
+          </div>
+          <div class="results-actions">
+            <span id="decoded-vin-badge" class="vin-badge"></span>
+            <button id="clear-btn" type="button" class="btn-secondary">Clear</button>
+          </div>
+        </div>
+
+        <div id="results-warning" class="alert alert-warning" role="note" hidden></div>
+
+        <div class="table-wrap">
+          <table class="specs-table">
+            <thead>
+              <tr>
+                <th scope="col">Specification</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody id="specs-tbody"></tbody>
+          </table>
+        </div>
+
+        <p class="results-source">Source: NHTSA vPIC API (factory specifications only — empty fields omitted).</p>
+      </section>
+
+      <section class="info-grid" aria-label="VIN Decoder Guide">
+        <article class="info-card">
+          <h2>What a VIN Decode Shows</h2>
+          <p>
+            Decoding a 17-character VIN returns factory-built details such as make, model, model year, trim, body class, engine, fuel type, transmission, drive type, assembly country, and manufacturer.
+          </p>
+          <p class="muted-note">
+            Factory specs only — accident history, salvage records, odometer readings, liens, and ownership records are not part of a VIN decode. Vehicles built before 1981 or outside the US market may not appear in NHTSA records.
+          </p>
+        </article>
+
+        <article class="info-card">
+          <h2>Where to Find Your VIN</h2>
+          <ul class="guide-list">
+            <li><strong>Dashboard:</strong> Lower-left corner on the driver’s side, visible through the windshield.</li>
+            <li><strong>Door jamb:</strong> Sticker inside the driver-side door frame near the latch.</li>
+            <li><strong>Documents:</strong> Listed on your vehicle registration card, title, and auto insurance policy.</li>
+          </ul>
+          <p class="muted-note">
+            Your privacy: entered VINs are used only for the lookup and are never stored by this site.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p class="footer-disclaimer">
+          Free VIN Decoder is an independent, unofficial tool. It is not affiliated with, endorsed by, or connected to NHTSA, NICB, Carfax, or any vehicle manufacturer.
+        </p>
+      </div>
+    </footer>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
+

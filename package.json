@@ -1,0 +1,19 @@
+{
+  "name": "free-vin-decoder",
+  "version": "1.0.0",
+  "description": "Free VIN decoder web app powered by the NHTSA vPIC API",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "isomorphic-git": "^1.44.3"
+  }
+}
