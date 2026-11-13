@@ -15,6 +15,55 @@ function cleanText(value) {
   return String(value).trim();
 }
 
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+export function formatRecallDate(raw) {
+  if (!raw) return '';
+  const s = String(raw).trim();
+  if (!s) return '';
+
+  const msMatch = s.match(/\/Date\((\d+)\)\//i);
+  if (msMatch) {
+    const d = new Date(Number(msMatch[1]));
+    if (!isNaN(d.getTime())) {
+      return `${d.getUTCDate()} ${MONTH_NAMES[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+    }
+  }
+
+  const isoMatch = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  if (isoMatch) {
+    const y = parseInt(isoMatch[1], 10);
+    const m = parseInt(isoMatch[2], 10) - 1;
+    const d = parseInt(isoMatch[3], 10);
+    if (m >= 0 && m < 12 && d >= 1 && d <= 31) {
+      return `${d} ${MONTH_NAMES[m]} ${y}`;
+    }
+  }
+
+  const slashMatch = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (slashMatch) {
+    const p1 = parseInt(slashMatch[1], 10);
+    const p2 = parseInt(slashMatch[2], 10);
+    const y = parseInt(slashMatch[3], 10);
+    let m = p1 - 1;
+    let d = p2;
+    if (p1 > 12 && p2 <= 12) {
+      d = p1;
+      m = p2 - 1;
+    }
+    if (m >= 0 && m < 12 && d >= 1 && d <= 31) {
+      return `${d} ${MONTH_NAMES[m]} ${y}`;
+    }
+  }
+
+  const parsed = new Date(s);
+  if (!isNaN(parsed.getTime())) {
+    return `${parsed.getUTCDate()} ${MONTH_NAMES[parsed.getUTCMonth()]} ${parsed.getUTCFullYear()}`;
+  }
+
+  return s;
+}
+
 export function validateRecallQuery({ make, model, modelYear } = {}) {
   const cleanMake = cleanText(make);
   const cleanModel = cleanText(model);
@@ -68,7 +117,7 @@ export function extractRecallRecords(payload) {
       summary: cleanText(item.Summary),
       remedy: cleanText(item.Remedy),
       consequence: cleanText(item.Consequence),
-      reportDate: cleanText(item.ReportReceivedDate),
+      reportDate: formatRecallDate(cleanText(item.ReportReceivedDate)),
       parkIt: Boolean(item.parkIt),
       parkOutside: Boolean(item.parkOutSide),
     }))

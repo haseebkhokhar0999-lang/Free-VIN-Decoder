@@ -369,17 +369,35 @@ function renderAllDetailsTable() {
   dtPagination.append(createPageButton('Next', currentPage + 1, { disabled: currentPage >= totalPages }));
 }
 
+function setSummaryField(elem, value) {
+  if (!elem) return;
+  const str = value != null ? String(value).trim() : '';
+  const row = elem.closest('.detail-line');
+  if (str && !['0', 'null', 'not applicable', 'n/a', 'na', 'unknown'].includes(str.toLowerCase())) {
+    elem.textContent = str;
+    if (row) row.hidden = false;
+  } else {
+    elem.textContent = '';
+    if (row) row.hidden = true;
+  }
+}
+
 function renderOtherInfo(other) {
   if (otherInfoGrid) {
     otherInfoGrid.textContent = '';
     for (const field of OTHER_INFO_FIELDS) {
+      const val = other?.[field.key];
+      const str = val != null ? String(val).trim() : '';
+      if (!str || ['0', 'null', 'not applicable', 'n/a', 'na'].includes(str.toLowerCase())) {
+        continue;
+      }
       const item = document.createElement('div');
       item.className = 'other-info-item';
 
       const label = document.createElement('strong');
       label.textContent = `${field.label}: `;
 
-      const value = document.createTextNode(other?.[field.key] || '');
+      const value = document.createTextNode(str);
       item.append(label, value);
       otherInfoGrid.append(item);
     }
@@ -388,18 +406,31 @@ function renderOtherInfo(other) {
   if (airbagsList) {
     airbagsList.textContent = '';
     const airbags = other?.airbags || {};
+    let airbagCount = 0;
     for (const field of AIRBAG_FIELDS) {
+      const rawVal = airbags[field.key];
+      if (!rawVal) continue;
+      const cleanVal = String(rawVal).trim();
+      if (!cleanVal || ['0', 'null', 'not applicable', 'n/a', 'na'].includes(cleanVal.toLowerCase())) {
+        continue;
+      }
       const li = document.createElement('li');
       const label = document.createElement('strong');
       label.textContent = `${field.label}: `;
-      const value = document.createTextNode(airbags[field.key] || '');
+      const value = document.createTextNode(cleanVal);
       li.append(label, value);
+      airbagsList.append(li);
+      airbagCount += 1;
+    }
+    if (airbagCount === 0) {
+      const li = document.createElement('li');
+      li.textContent = 'No airbag location details reported for this vehicle.';
       airbagsList.append(li);
     }
   }
 
   if (valPlantInfo) {
-    valPlantInfo.textContent = other?.plantInformation || '';
+    setSummaryField(valPlantInfo, other?.plantInformation);
   }
 }
 
@@ -444,7 +475,7 @@ function renderSpecsGrid(data) {
     const strong = document.createElement('strong');
     strong.textContent = `${item.label}:`;
     const span = document.createElement('span');
-    span.textContent = item.value;
+    span.textContent = String(item.value).replace(/,([^\s])/g, ', ');
     div.append(strong, span);
     specsGrid.append(div);
   }
@@ -507,7 +538,8 @@ function renderDimensionsGrid(data) {
       }
     }
     if (val && !['0', 'null', 'not applicable', 'n/a', 'na'].includes(val.toLowerCase())) {
-      foundItems.push({ label: item.label, value: val });
+      const formattedVal = String(val).replace(/,([^\s])/g, ', ');
+      foundItems.push({ label: item.label, value: formattedVal });
     }
   }
 
@@ -559,6 +591,7 @@ function renderResults(data, enteredYear) {
 
   renderModelYearConfirmation(enteredYear, mfg.modelYear || '', data.warning);
 
+  const mfgRow = valManufacturer ? valManufacturer.closest('.detail-line') : null;
   valManufacturer.textContent = '';
   if (mfg.manufacturer && mfg.manufacturerUrl) {
     const link = document.createElement('a');
@@ -567,23 +600,34 @@ function renderResults(data, enteredYear) {
     link.rel = 'noopener noreferrer';
     link.textContent = mfg.manufacturer;
     valManufacturer.append(link);
-  } else {
-    valManufacturer.textContent = mfg.manufacturer || '';
+    if (mfgRow) mfgRow.hidden = false;
+  } else if (mfg.manufacturer && String(mfg.manufacturer).trim()) {
+    valManufacturer.textContent = mfg.manufacturer;
+    if (mfgRow) mfgRow.hidden = false;
+  } else if (mfgRow) {
+    mfgRow.hidden = true;
   }
 
-  valDbas.textContent = mfg.dbas || '';
-  valVehicleType.textContent = mfg.vehicleType || '';
-  valModelYear.textContent = mfg.modelYear || '';
-  valMake.textContent = mfg.make || '';
-  valModel.textContent = mfg.model || '';
-  valBodyClass.textContent = mfg.bodyClass || '';
-  if (valSeries) valSeries.textContent = data.otherInfo?.series || '';
-  if (valTrim) valTrim.textContent = data.otherInfo?.trim || '';
+  setSummaryField(valDbas, mfg.dbas);
+  setSummaryField(valVehicleType, mfg.vehicleType);
+  setSummaryField(valModelYear, mfg.modelYear);
+  setSummaryField(valMake, mfg.make);
+  setSummaryField(valModel, mfg.model);
+  setSummaryField(valBodyClass, mfg.bodyClass);
+  setSummaryField(valSeries, data.otherInfo?.series);
+  setSummaryField(valTrim, data.otherInfo?.trim);
 
   if (header.vehicleImageUrl) {
     vehicleDrawing.alt = mfg.bodyClass ? `${mfg.bodyClass} illustration` : 'Vehicle illustration';
     vehicleDrawing.hidden = false;
-    vehicleDrawing.src = header.vehicleImageUrl;
+    if (
+      header.vehicleImageUrl.endsWith('/3.png') ||
+      (mfg.bodyClass && mfg.bodyClass.toLowerCase().includes('coupe'))
+    ) {
+      vehicleDrawing.src = '/body-coupe.png';
+    } else {
+      vehicleDrawing.src = header.vehicleImageUrl;
+    }
   } else {
     vehicleDrawing.hidden = true;
     vehicleDrawing.removeAttribute('src');

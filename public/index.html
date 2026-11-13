@@ -25,7 +25,7 @@
       content="Decode any VIN for free — factory specs, engine, build plant and open recalls. Free VIN decoder, VIN lookup and VIN check, no signup, no email required."
     />
     <meta name="twitter:image" content="https://free-vin-decoder.vercel.app/og-image.png" />
-    <link rel="stylesheet" href="/styles.css?v=20261112-5" />
+    <link rel="stylesheet" href="/styles.css?v=20261112-6" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -365,7 +365,7 @@
             />
           </svg>
           <div>
-            <strong>Error Text:</strong>
+            <strong>Status:</strong>
             <span id="error-status-text"></span>
           </div>
         </div>
@@ -567,7 +567,7 @@
         <div class="post-results-explainer">
           <h3>Using NHTSA's VIN Decoder to Identify a Vehicle's Plant of Manufacture</h3>
           <p>
-            Decoded vehicle records include the assembly city, state, and country reported for the vehicle. See the <strong>Plant Information</strong> line at the bottom of the <strong>Other Information</strong> section above.
+            Decoded vehicle records include the assembly city, state, and country reported for the vehicle. See the <strong>Plant Information</strong> line in the <strong>Summary</strong> panel above.
           </p>
 
           <h3>More Information</h3>
@@ -808,23 +808,23 @@
             <title>VIN decoder diagram – VIN lookup by character (WMI, VDS, check digit, model year, plant, serial number)</title>
             <rect x="0" y="0" width="748" height="184" rx="8" fill="#f8fafc" />
 
-            <!-- Top group headers -->
-            <text x="80" y="24" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#1453b8">
+            <!-- Top group headers (staggered to prevent single-character column label overlap) -->
+            <text x="80" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#1453b8">
               WMI (1–3)
             </text>
-            <text x="248" y="24" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#132033">
+            <text x="248" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#132033">
               VDS (4–8)
             </text>
-            <text x="374" y="24" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#92400e">
+            <text x="374" y="14" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#92400e">
               Check (9)
             </text>
-            <text x="416" y="24" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#166534">
+            <text x="416" y="28" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#166534">
               Year (10)
             </text>
-            <text x="458" y="24" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#3730a3">
+            <text x="458" y="14" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" font-weight="700" fill="#3730a3">
               Plant (11)
             </text>
-            <text x="605" y="24" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#334155">
+            <text x="605" y="22" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" font-weight="700" fill="#334155">
               Serial Number (12–17)
             </text>
 
@@ -908,8 +908,8 @@
               Unique Production Sequence
             </text>
 
-            <text x="374" y="168" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#526277">
-              Sample 17-character VIN structure (49 CFR Part 565): WMI (1–3) + VDS (4–9) + VIS (10–17)
+            <text x="374" y="168" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10.5" fill="#526277">
+              17-character VIN structure (49 CFR Part 565): WMI (1–3) + VDS (4–8) + Check digit (9) + Model Year (10) + Plant (11) + Serial Number (12–17)
             </text>
           </svg>
         </div>
@@ -1179,7 +1179,7 @@
     </footer>
 
     <script src="/site-nav.js?v=20261112-1" defer></script>
-    <script src="/recalls-ui.js?v=20261112-1" defer></script>
-    <script src="/app.js?v=20261112-2" defer></script>
+    <script src="/recalls-ui.js?v=20261112-6" defer></script>
+    <script src="/app.js?v=20261112-6" defer></script>
   </body>
 </html>

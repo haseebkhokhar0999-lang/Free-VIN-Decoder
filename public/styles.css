@@ -672,6 +672,11 @@ body {
   border-bottom: 1px solid #d4dbe3;
 }
 
+.nhtsa-card-body {
+  padding: 16px 20px;
+  box-sizing: border-box;
+}
+
 .results-panel-header {
   display: flex;
   flex-wrap: wrap;
@@ -782,7 +787,16 @@ body {
   border-bottom: 2px solid #e2e8f0;
   margin-bottom: 16px;
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.results-tabs-bar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .results-tab-btn {
@@ -819,11 +833,13 @@ body {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (min-width: 640px) {
   .specs-grid-layout {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -835,6 +851,8 @@ body {
   padding: 8px 0;
   border-bottom: 1px solid #f1f5f9;
   font-size: 0.94rem;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .spec-row strong {
@@ -847,6 +865,8 @@ body {
   color: #334155;
   text-align: right;
   word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .btn-export-pdf {
@@ -911,6 +931,10 @@ body {
   margin: 0 0 8px;
   font-size: 0.94rem;
   line-height: 1.45;
+}
+
+.detail-line[hidden] {
+  display: none !important;
 }
 
 .detail-line a {
@@ -1188,7 +1212,8 @@ body {
     break-inside: avoid;
   }
 
-  .tab-panel {
+  .tab-panel,
+  .tab-panel[hidden] {
     display: block !important;
     margin-bottom: 24px;
   }
