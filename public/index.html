@@ -25,7 +25,7 @@
       content="Decode any VIN for free — factory specs, engine, build plant and open recalls. Free VIN decoder, VIN lookup and VIN check, no signup, no email required."
     />
     <meta name="twitter:image" content="https://free-vin-decoder.vercel.app/og-image.png" />
-    <link rel="stylesheet" href="/styles.css?v=20261112-7" />
+    <link rel="stylesheet" href="/styles.css?v=20261112-9" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -34,6 +34,17 @@
             "@type": "WebSite",
             "name": "Free VIN Decoder",
             "url": "https://free-vin-decoder.vercel.app/"
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "Free VIN Decoder",
+            "applicationCategory": "UtilitiesApplication",
+            "operatingSystem": "Any",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            }
           },
           {
             "@type": "FAQPage",
@@ -206,17 +217,18 @@
               </div>
 
               <div class="form-row">
-                <label for="model-year-input" class="form-label">Model Year</label>
+                <label for="model-year-input" class="form-label">Model Year (Optional)</label>
                 <div class="form-control-col">
                   <input
                     id="model-year-input"
                     name="modelyear"
                     type="number"
                     inputmode="numeric"
-                    placeholder="Vehicle's Model Year"
+                    placeholder="Model Year (Optional)"
+                    aria-label="Model Year (Optional)"
                     aria-describedby="model-year-help vin-error"
                   />
-                  <p id="model-year-help" class="field-help">If entered the year from VIN will be ignored</p>
+                  <p id="model-year-help" class="field-help">Optional — only enter a year if the year from your VIN is wrong.</p>
                 </div>
               </div>
 
@@ -228,9 +240,11 @@
                       <span class="btn-spinner" aria-hidden="true"></span>
                       <span class="btn-label">Decode VIN</span>
                     </button>
+                  </div>
+                  <div class="cvs-link-row">
                     <a
                       id="cvs-btn"
-                      class="btn-info btn-cvs"
+                      class="btn-cvs-link"
                       href="https://vpic.nhtsa.dot.gov/decoder/CaVehSpec?year=2026"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -1178,8 +1192,8 @@
       </div>
     </footer>
 
-    <script src="/site-nav.js?v=20261112-1" defer></script>
-    <script src="/recalls-ui.js?v=20261112-7" defer></script>
-    <script src="/app.js?v=20261112-8" defer></script>
+    <script src="/site-nav.js?v=20261112-9" defer></script>
+    <script src="/recalls-ui.js?v=20261112-9" defer></script>
+    <script src="/app.js?v=20261112-9" defer></script>
   </body>
 </html>

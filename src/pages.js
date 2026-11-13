@@ -1,4 +1,4 @@
-export const ASSET_VERSION = '20261112-8';
+export const ASSET_VERSION = '20261112-9';
 
 export const FOOTER_DISCLAIMER =
   'Free VIN Decoder is an independent, unofficial tool. It is not affiliated with, endorsed by, or connected to NHTSA, NICB, Carfax, or any vehicle manufacturer.';
@@ -208,17 +208,18 @@ export function renderStandardDecoderCardHtml({ heading = 'Free 17-Character VIN
               </div>
 
               <div class="form-row">
-                <label for="model-year-input" class="form-label">Model Year</label>
+                <label for="model-year-input" class="form-label">Model Year (Optional)</label>
                 <div class="form-control-col">
                   <input
                     id="model-year-input"
                     name="modelyear"
                     type="number"
                     inputmode="numeric"
-                    placeholder="Vehicle's Model Year"
+                    placeholder="Model Year (Optional)"
+                    aria-label="Model Year (Optional)"
                     aria-describedby="model-year-help vin-error"
                   />
-                  <p id="model-year-help" class="field-help">If entered the year from VIN will be ignored</p>
+                  <p id="model-year-help" class="field-help">Optional — only enter a year if the year from your VIN is wrong.</p>
                 </div>
               </div>
 
@@ -230,9 +231,11 @@ export function renderStandardDecoderCardHtml({ heading = 'Free 17-Character VIN
                       <span class="btn-spinner" aria-hidden="true"></span>
                       <span class="btn-label">Decode VIN</span>
                     </button>
+                  </div>
+                  <div class="cvs-link-row">
                     <a
                       id="cvs-btn"
-                      class="btn-info btn-cvs"
+                      class="btn-cvs-link"
                       href="https://vpic.nhtsa.dot.gov/decoder/CaVehSpec?year=2026"
                       target="_blank"
                       rel="noopener noreferrer"
