@@ -538,7 +538,10 @@ function renderDimensionsGrid(data) {
       }
     }
     if (val && !['0', 'null', 'not applicable', 'n/a', 'na'].includes(val.toLowerCase())) {
-      const formattedVal = String(val).replace(/,([^\s])/g, ', ');
+      let formattedVal = String(val);
+      if (item.label === 'NCSA Body Type') {
+        formattedVal = formattedVal.replace(/,/g, ', ').replace(/,\s+/g, ', ');
+      }
       foundItems.push({ label: item.label, value: formattedVal });
     }
   }
@@ -557,7 +560,11 @@ function renderDimensionsGrid(data) {
     const strong = document.createElement('strong');
     strong.textContent = `${item.label}:`;
     const span = document.createElement('span');
-    span.textContent = item.value;
+    let displayValue = item.value;
+    if (item.label === 'NCSA Body Type') {
+      displayValue = String(displayValue).replace(/,/g, ', ').replace(/,\s+/g, ', ');
+    }
+    span.textContent = displayValue;
     div.append(strong, span);
     dimensionsGrid.append(div);
   }
