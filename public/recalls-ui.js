@@ -6,6 +6,15 @@
     const s = String(raw).trim();
     if (!s) return '';
 
+    const alreadyFormattedMatch = s.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);
+    if (alreadyFormattedMatch) {
+      const d = parseInt(alreadyFormattedMatch[1], 10);
+      const mStr = alreadyFormattedMatch[2].slice(0, 3).toLowerCase();
+      const capM = mStr.charAt(0).toUpperCase() + mStr.slice(1);
+      const y = alreadyFormattedMatch[3];
+      return `${d} ${capM} ${y}`;
+    }
+
     const msMatch = s.match(/\/Date\((\d+)\)\//i);
     if (msMatch) {
       const d = new Date(Number(msMatch[1]));
@@ -29,12 +38,19 @@
       const p1 = parseInt(slashMatch[1], 10);
       const p2 = parseInt(slashMatch[2], 10);
       const y = parseInt(slashMatch[3], 10);
-      let m = p1 - 1;
-      let d = p2;
-      if (p1 > 12 && p2 <= 12) {
+
+      let d;
+      let m;
+      if (p2 > 12 && p1 <= 12) {
+        // Second number is greater than 12: month-first (MM/DD/YYYY)
+        m = p1 - 1;
+        d = p2;
+      } else {
+        // First number is greater than 12, or both numbers are 12 or less: day-first (DD/MM/YYYY)
         d = p1;
         m = p2 - 1;
       }
+
       if (m >= 0 && m < 12 && d >= 1 && d <= 31) {
         return `${d} ${MONTH_NAMES[m]} ${y}`;
       }
