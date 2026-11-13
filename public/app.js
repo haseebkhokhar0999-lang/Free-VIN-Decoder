@@ -41,6 +41,8 @@ const progressCaption = document.getElementById('progress-caption');
 const resultsSection = document.getElementById('results-section');
 const makeLogo = document.getElementById('make-logo');
 const resultsHeading = document.getElementById('results-heading');
+const vehicleStockPhoto = document.getElementById('vehicle-stock-photo');
+const printResultsBtn = document.getElementById('print-results-btn');
 const exportPdfBtn = document.getElementById('export-pdf-btn');
 const errorStatusBanner = document.getElementById('error-status-banner');
 const statusIconSuccess = document.getElementById('status-icon-success');
@@ -55,7 +57,12 @@ const valModelYear = document.getElementById('val-model-year');
 const valMake = document.getElementById('val-make');
 const valModel = document.getElementById('val-model');
 const valBodyClass = document.getElementById('val-body-class');
+const valSeries = document.getElementById('val-series');
+const valTrim = document.getElementById('val-trim');
 const vehicleDrawing = document.getElementById('vehicle-drawing');
+
+const specsGrid = document.getElementById('specs-grid');
+const dimensionsGrid = document.getElementById('dimensions-grid');
 
 const toggleAllDetailsBtn = document.getElementById('toggle-all-details-btn');
 const backToSummaryBtn = document.getElementById('back-to-summary-btn');
@@ -206,10 +213,84 @@ function renderModelYearConfirmation(enteredYear, decodedYear, warningText) {
 }
 
 function setAllDetailsExpanded(expanded) {
-  allDetailsCard.hidden = !expanded;
-  otherInfoCard.hidden = expanded;
+  if (allDetailsCard) allDetailsCard.hidden = !expanded;
+  const tabsBar = document.querySelector('.results-tabs-bar');
+  if (tabsBar) tabsBar.hidden = expanded;
+  const panels = document.querySelectorAll('.tab-panel');
+  if (expanded) {
+    panels.forEach((p) => {
+      p.hidden = true;
+    });
+  } else {
+    resetTabsToSummary();
+  }
   toggleAllDetailsBtn.setAttribute('aria-expanded', String(expanded));
   toggleAllDetailsBtn.textContent = expanded ? 'Hide All Vehicle Details' : 'Show All Vehicle Details';
+}
+
+function setupTabs() {
+  const tabButtons = document.querySelectorAll('.results-tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('aria-controls');
+      if (!targetId) return;
+
+      tabButtons.forEach((b) => {
+        const isTarget = b === btn;
+        b.classList.toggle('is-active', isTarget);
+        b.setAttribute('aria-selected', String(isTarget));
+      });
+
+      tabPanels.forEach((panel) => {
+        const isTarget = panel.id === targetId;
+        panel.hidden = !isTarget;
+        panel.classList.toggle('is-active', isTarget);
+      });
+    });
+  });
+}
+
+function resetTabsToSummary() {
+  const tabButtons = document.querySelectorAll('.results-tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+
+  tabButtons.forEach((btn) => {
+    const isSummary = btn.getAttribute('aria-controls') === 'tab-panel-summary';
+    btn.classList.toggle('is-active', isSummary);
+    btn.setAttribute('aria-selected', String(isSummary));
+  });
+
+  tabPanels.forEach((panel) => {
+    const isSummary = panel.id === 'tab-panel-summary';
+    panel.hidden = !isSummary;
+    panel.classList.toggle('is-active', isSummary);
+  });
+}
+
+function updateStockCarPhoto(bodyClass) {
+  if (!vehicleStockPhoto) return;
+  const bc = String(bodyClass || '').toLowerCase();
+  let photoSrc = '/car-stock-generic.png';
+  let altText = 'Generic vehicle stock photo';
+
+  if (bc.includes('sedan')) {
+    photoSrc = '/car-stock-sedan.png';
+    altText = 'Sedan stock photo';
+  } else if (bc.includes('coupe')) {
+    photoSrc = '/car-stock-coupe.png';
+    altText = 'Coupe stock photo';
+  } else if (bc.includes('suv') || bc.includes('sport utility') || bc.includes('crossover')) {
+    photoSrc = '/car-stock-suv.png';
+    altText = 'SUV stock photo';
+  } else if (bc.includes('pickup') || bc.includes('truck')) {
+    photoSrc = '/car-stock-pickup.png';
+    altText = 'Pickup truck stock photo';
+  }
+
+  vehicleStockPhoto.src = photoSrc;
+  vehicleStockPhoto.alt = altText;
 }
 
 function createPageButton(label, targetPage, { active = false, disabled = false } = {}) {
@@ -289,31 +370,165 @@ function renderAllDetailsTable() {
 }
 
 function renderOtherInfo(other) {
-  otherInfoGrid.textContent = '';
-  for (const field of OTHER_INFO_FIELDS) {
-    const item = document.createElement('div');
-    item.className = 'other-info-item';
+  if (otherInfoGrid) {
+    otherInfoGrid.textContent = '';
+    for (const field of OTHER_INFO_FIELDS) {
+      const item = document.createElement('div');
+      item.className = 'other-info-item';
 
-    const label = document.createElement('strong');
-    label.textContent = `${field.label}: `;
+      const label = document.createElement('strong');
+      label.textContent = `${field.label}: `;
 
-    const value = document.createTextNode(other?.[field.key] || '');
-    item.append(label, value);
-    otherInfoGrid.append(item);
+      const value = document.createTextNode(other?.[field.key] || '');
+      item.append(label, value);
+      otherInfoGrid.append(item);
+    }
   }
 
-  airbagsList.textContent = '';
-  const airbags = other?.airbags || {};
-  for (const field of AIRBAG_FIELDS) {
-    const li = document.createElement('li');
-    const label = document.createElement('strong');
-    label.textContent = `${field.label}: `;
-    const value = document.createTextNode(airbags[field.key] || '');
-    li.append(label, value);
-    airbagsList.append(li);
+  if (airbagsList) {
+    airbagsList.textContent = '';
+    const airbags = other?.airbags || {};
+    for (const field of AIRBAG_FIELDS) {
+      const li = document.createElement('li');
+      const label = document.createElement('strong');
+      label.textContent = `${field.label}: `;
+      const value = document.createTextNode(airbags[field.key] || '');
+      li.append(label, value);
+      airbagsList.append(li);
+    }
   }
 
-  valPlantInfo.textContent = other?.plantInformation || '';
+  if (valPlantInfo) {
+    valPlantInfo.textContent = other?.plantInformation || '';
+  }
+}
+
+function renderSpecsGrid(data) {
+  if (!specsGrid) return;
+  specsGrid.textContent = '';
+  const other = data.otherInfo || {};
+  const specs = data.specs || [];
+
+  const engineSpec = specs.find((s) => s.key === 'engine')?.value || other.engineModel || '';
+  const fuelSpec = specs.find((s) => s.key === 'fuelType')?.value || other.primaryFuelType || '';
+  const transSpec = specs.find((s) => s.key === 'transmission')?.value || other.transmissionStyle || '';
+  const driveSpec = specs.find((s) => s.key === 'driveType')?.value || other.driveType || '';
+
+  const specItems = [
+    { label: 'Engine', value: engineSpec },
+    { label: 'Engine Displacement', value: other.engineDisplacementL ? `${other.engineDisplacementL} L` : '' },
+    { label: 'Cylinders', value: other.cylinders },
+    { label: 'Horsepower', value: other.engineBrakeHp ? `${other.engineBrakeHp} HP` : '' },
+    { label: 'Engine Model', value: other.engineModel },
+    { label: 'Engine Manufacturer', value: other.engineManufacturer },
+    { label: 'Fuel Type', value: fuelSpec },
+    { label: 'Secondary Fuel Type', value: other.secondaryFuelType },
+    { label: 'Electrification Level', value: other.electrificationLevel },
+    { label: 'Transmission', value: transSpec },
+    { label: 'Transmission Speeds', value: other.transmissionSpeed },
+    { label: 'Drive Type', value: driveSpec },
+    { label: 'Gross Vehicle Weight Rating', value: other.gvwr },
+  ].filter((item) => item.value && String(item.value).trim());
+
+  if (specItems.length === 0) {
+    const p = document.createElement('p');
+    p.className = 'other-info-lead';
+    p.textContent = 'No powertrain specifications were reported for this vehicle in NHTSA records.';
+    specsGrid.append(p);
+    return;
+  }
+
+  for (const item of specItems) {
+    const div = document.createElement('div');
+    div.className = 'spec-row';
+    const strong = document.createElement('strong');
+    strong.textContent = `${item.label}:`;
+    const span = document.createElement('span');
+    span.textContent = item.value;
+    div.append(strong, span);
+    specsGrid.append(div);
+  }
+}
+
+function renderDimensionsGrid(data) {
+  if (!dimensionsGrid) return;
+  dimensionsGrid.textContent = '';
+  const allDetails = Array.isArray(data.allDetails) ? data.allDetails : [];
+  const mfg = data.manufacturerBlock || {};
+
+  const detailMap = new Map();
+  for (const row of allDetails) {
+    if (row && row.element && row.value && !detailMap.has(row.element)) {
+      const v = String(row.value).trim();
+      if (v && !['0', 'null', 'not applicable', 'n/a', 'na', 'unknown'].includes(v.toLowerCase())) {
+        detailMap.set(row.element, v);
+      }
+    }
+  }
+
+  const dimensionKeys = [
+    { label: 'Doors', keys: ['Doors', 'Number of Doors'] },
+    { label: 'Body Class', fallback: mfg.bodyClass || detailMap.get('Body Class') },
+    {
+      label: 'Wheelbase',
+      keys: [
+        'Wheelbase (inches)',
+        'Wheel Base (inches)',
+        'Wheel Base (inches) From',
+        'Wheel Base (inches) To',
+        'Wheelbase',
+      ],
+      suffix: ' in',
+    },
+    { label: 'Track Width', keys: ['Track Width (inches)'], suffix: ' in' },
+    { label: 'Bed Length', keys: ['Bed Length (inches)'], suffix: ' in' },
+    { label: 'Bed Type', keys: ['Bed Type'] },
+    { label: 'Cab Type', keys: ['Cab Type'] },
+    { label: 'Curb Weight', keys: ['Curb Weight (pounds)'], suffix: ' lbs' },
+    {
+      label: 'Gross Vehicle Weight Rating',
+      keys: ['Gross Vehicle Weight Rating From', 'Gross Vehicle Weight Rating To', 'Gross Vehicle Weight Rating'],
+    },
+    { label: 'NCSA Body Type', keys: ['NCSA Body Type'] },
+  ];
+
+  const foundItems = [];
+  for (const item of dimensionKeys) {
+    let val = item.fallback || '';
+    if (!val && item.keys) {
+      for (const k of item.keys) {
+        if (detailMap.has(k)) {
+          val = detailMap.get(k);
+          if (item.suffix && !val.toLowerCase().includes('in') && !val.toLowerCase().includes('lb')) {
+            val = `${val}${item.suffix}`;
+          }
+          break;
+        }
+      }
+    }
+    if (val && !['0', 'null', 'not applicable', 'n/a', 'na'].includes(val.toLowerCase())) {
+      foundItems.push({ label: item.label, value: val });
+    }
+  }
+
+  if (foundItems.length === 0) {
+    const p = document.createElement('p');
+    p.className = 'other-info-lead';
+    p.textContent = 'No dimension specifications were reported for this vehicle in NHTSA records.';
+    dimensionsGrid.append(p);
+    return;
+  }
+
+  for (const item of foundItems) {
+    const div = document.createElement('div');
+    div.className = 'spec-row';
+    const strong = document.createElement('strong');
+    strong.textContent = `${item.label}:`;
+    const span = document.createElement('span');
+    span.textContent = item.value;
+    div.append(strong, span);
+    dimensionsGrid.append(div);
+  }
 }
 
 function renderResults(data, enteredYear) {
@@ -362,6 +577,8 @@ function renderResults(data, enteredYear) {
   valMake.textContent = mfg.make || '';
   valModel.textContent = mfg.model || '';
   valBodyClass.textContent = mfg.bodyClass || '';
+  if (valSeries) valSeries.textContent = data.otherInfo?.series || '';
+  if (valTrim) valTrim.textContent = data.otherInfo?.trim || '';
 
   if (header.vehicleImageUrl) {
     vehicleDrawing.alt = mfg.bodyClass ? `${mfg.bodyClass} illustration` : 'Vehicle illustration';
@@ -372,7 +589,10 @@ function renderResults(data, enteredYear) {
     vehicleDrawing.removeAttribute('src');
   }
 
+  updateStockCarPhoto(mfg.bodyClass || '');
   renderOtherInfo(data.otherInfo);
+  renderSpecsGrid(data);
+  renderDimensionsGrid(data);
 
   allDetailsRows = Array.isArray(data.allDetails) ? data.allDetails : [];
   currentPage = 1;
@@ -381,6 +601,7 @@ function renderResults(data, enteredYear) {
   dtPageSize.value = String(pageSize);
   renderAllDetailsTable();
   setAllDetailsExpanded(false);
+  resetTabsToSummary();
 
   resultsSection.hidden = false;
   loadRecallsForVehicle(mfg.make || '', mfg.model || '', mfg.modelYear || '');
@@ -567,9 +788,19 @@ vehicleDrawing.addEventListener('error', () => {
   vehicleDrawing.hidden = true;
 });
 
-exportPdfBtn.addEventListener('click', () => {
-  window.print();
-});
+if (printResultsBtn) {
+  printResultsBtn.addEventListener('click', () => {
+    window.print();
+  });
+}
+
+if (exportPdfBtn) {
+  exportPdfBtn.addEventListener('click', () => {
+    window.print();
+  });
+}
+
+setupTabs();
 
 toggleAllDetailsBtn.addEventListener('click', () => {
   setAllDetailsExpanded(allDetailsCard.hidden);

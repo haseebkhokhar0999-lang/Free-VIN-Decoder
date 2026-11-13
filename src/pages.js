@@ -1,4 +1,4 @@
-export const ASSET_VERSION = '20261112-4';
+export const ASSET_VERSION = '20261112-5';
 
 export const FOOTER_DISCLAIMER =
   'Free VIN Decoder is an independent, unofficial tool. It is not affiliated with, endorsed by, or connected to NHTSA, NICB, Carfax, or any vehicle manufacturer.';

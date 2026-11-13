@@ -25,7 +25,7 @@
       content="Decode any VIN for free — factory specs, engine, build plant and open recalls. Free VIN decoder, VIN lookup and VIN check, no signup, no email required."
     />
     <meta name="twitter:image" content="https://free-vin-decoder.vercel.app/og-image.png" />
-    <link rel="stylesheet" href="/styles.css?v=20261112-4" />
+    <link rel="stylesheet" href="/styles.css?v=20261112-5" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -321,91 +321,188 @@
       </section>
 
       <section id="results-section" class="results-stack" aria-labelledby="results-heading" hidden>
-        <div class="nhtsa-card">
-          <div class="nhtsa-card-header results-panel-header">
+        <div class="results-top-card nhtsa-card">
+          <div class="results-top-bar">
+            <div class="results-photo-wrap">
+              <img
+                id="vehicle-stock-photo"
+                class="vehicle-stock-photo"
+                src="/car-stock-generic.png"
+                alt="Vehicle stock photo"
+                width="160"
+                height="90"
+              />
+            </div>
             <div class="results-title-wrap">
-              <img id="make-logo" class="make-logo" alt="" hidden />
-              <h2 id="results-heading" class="results-heading"></h2>
+              <div class="results-heading-row">
+                <img id="make-logo" class="make-logo" alt="" hidden />
+                <h2 id="results-heading" class="results-heading"></h2>
+              </div>
             </div>
-            <button id="export-pdf-btn" type="button" class="btn-export-pdf d-print-none">Export to PDF</button>
+            <div class="results-actions-wrap d-print-none">
+              <button id="print-results-btn" type="button" class="btn-primary btn-print" aria-label="Print Decode Results">
+                <svg class="print-icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16">
+                  <path fill="currentColor" d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
+                </svg>
+                <span>Print</span>
+              </button>
+              <button id="export-pdf-btn" type="button" class="btn-export-pdf" hidden>Export to PDF</button>
+            </div>
           </div>
+        </div>
 
-          <div class="nhtsa-card-body">
-            <div id="error-status-banner" class="status-banner status-success" role="status">
-              <svg id="status-icon-success" class="status-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  fill="currentColor"
-                  d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm-1.2 14.2-3.5-3.5 1.4-1.4 2.1 2.1 4.9-4.9 1.4 1.4Z"
-                />
-              </svg>
-              <svg id="status-icon-warning" class="status-icon" viewBox="0 0 24 24" aria-hidden="true" hidden>
-                <path
-                  fill="currentColor"
-                  d="M12 2 1 21h22Zm1 15h-2v-2h2Zm0-4h-2V9h2Z"
-                />
-              </svg>
-              <div>
-                <strong>Error Text:</strong>
-                <span id="error-status-text"></span>
-              </div>
+        <div id="error-status-banner" class="status-banner status-success" role="status">
+          <svg id="status-icon-success" class="status-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm-1.2 14.2-3.5-3.5 1.4-1.4 2.1 2.1 4.9-4.9 1.4 1.4Z"
+            />
+          </svg>
+          <svg id="status-icon-warning" class="status-icon" viewBox="0 0 24 24" aria-hidden="true" hidden>
+            <path
+              fill="currentColor"
+              d="M12 2 1 21h22Zm1 15h-2v-2h2Zm0-4h-2V9h2Z"
+            />
+          </svg>
+          <div>
+            <strong>Error Text:</strong>
+            <span id="error-status-text"></span>
+          </div>
+        </div>
+
+        <div id="model-year-status" class="alert" role="status" hidden></div>
+
+        <!-- Tabbed Navigation Bar -->
+        <div class="results-tabs-bar d-print-none" role="tablist" aria-label="Decode Results Sections">
+          <button
+            id="tab-btn-summary"
+            type="button"
+            role="tab"
+            class="results-tab-btn is-active"
+            aria-selected="true"
+            aria-controls="tab-panel-summary"
+          >
+            Summary
+          </button>
+          <button
+            id="tab-btn-specs"
+            type="button"
+            role="tab"
+            class="results-tab-btn"
+            aria-selected="false"
+            aria-controls="tab-panel-specs"
+          >
+            Specs
+          </button>
+          <button
+            id="tab-btn-dimensions"
+            type="button"
+            role="tab"
+            class="results-tab-btn"
+            aria-selected="false"
+            aria-controls="tab-panel-dimensions"
+          >
+            Dimensions &amp; Body
+          </button>
+          <button
+            id="tab-btn-safety"
+            type="button"
+            role="tab"
+            class="results-tab-btn"
+            aria-selected="false"
+            aria-controls="tab-panel-safety"
+          >
+            Safety &amp; Recalls
+          </button>
+        </div>
+
+        <!-- Tab 1: Summary -->
+        <div id="tab-panel-summary" class="tab-panel is-active" role="tabpanel" aria-labelledby="tab-btn-summary">
+          <div class="nhtsa-card">
+            <div class="nhtsa-card-header">
+              <h3 class="card-section-title">Summary</h3>
             </div>
+            <div class="nhtsa-card-body">
+              <div class="mfg-grid">
+                <div class="mfg-details">
+                  <p class="detail-line"><strong>Make:</strong> <span id="val-make"></span></p>
+                  <p class="detail-line"><strong>Model:</strong> <span id="val-model"></span></p>
+                  <p class="detail-line"><strong>Model Year:</strong> <span id="val-model-year"></span></p>
+                  <p class="detail-line"><strong>Series:</strong> <span id="val-series"></span></p>
+                  <p class="detail-line"><strong>Trim:</strong> <span id="val-trim"></span></p>
+                  <p class="detail-line"><strong>Body Class:</strong> <span id="val-body-class"></span></p>
+                  <p class="detail-line"><strong>Vehicle Type:</strong> <span id="val-vehicle-type"></span></p>
+                  <p class="detail-line"><strong>Manufacturer:</strong> <span id="val-manufacturer"></span></p>
+                  <p class="detail-line"><strong>DBAs:</strong> <span id="val-dbas"></span></p>
+                  <p class="detail-line"><strong>Plant Information:</strong> <span id="val-plant-info"></span></p>
 
-            <div id="model-year-status" class="alert" role="status" hidden></div>
-
-            <div class="mfg-grid">
-              <div class="mfg-details">
-                <p class="detail-line"><strong>Manufacturer:</strong> <span id="val-manufacturer"></span></p>
-                <p class="detail-line"><strong>DBAs:</strong> <span id="val-dbas"></span></p>
-                <p class="detail-line"><strong>Vehicle Type:</strong> <span id="val-vehicle-type"></span></p>
-                <p class="detail-line"><strong>Model Year:</strong> <span id="val-model-year"></span></p>
-                <p class="detail-line"><strong>Make:</strong> <span id="val-make"></span></p>
-                <p class="detail-line"><strong>Model:</strong> <span id="val-model"></span></p>
-                <p class="detail-line"><strong>Body Class:</strong> <span id="val-body-class"></span></p>
-
-                <div class="show-details-wrap d-print-none">
-                  <button
-                    id="toggle-all-details-btn"
-                    type="button"
-                    class="btn-outline-blue"
-                    aria-expanded="false"
-                    aria-controls="all-details-card"
-                  >
-                    Show All Vehicle Details
-                  </button>
+                  <div class="show-details-wrap d-print-none">
+                    <button
+                      id="toggle-all-details-btn"
+                      type="button"
+                      class="btn-outline-blue"
+                      aria-expanded="false"
+                      aria-controls="all-details-card"
+                    >
+                      Show All Vehicle Details
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div class="mfg-image-col">
-                <img id="vehicle-drawing" class="vehicle-drawing" alt="Vehicle body class illustration" hidden />
+                <div class="mfg-image-col">
+                  <img id="vehicle-drawing" class="vehicle-drawing" alt="Vehicle body class illustration" hidden />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div id="other-info-card" class="nhtsa-card">
-          <div class="nhtsa-card-header">
-            <h3 class="card-section-title">Other Information</h3>
-          </div>
-          <div class="nhtsa-card-body">
-            <p class="other-info-lead">
-              Information provided below is based on the details reported by the manufacturer of this vehicle in public 49 CFR Part 565 records.
-            </p>
-
-            <div id="other-info-grid" class="other-info-grid"></div>
-
-            <hr class="section-divider" />
-
-            <div class="airbags-block">
-              <strong class="airbags-heading">Airbags:</strong>
-              <ul id="airbags-list" class="airbags-list"></ul>
+        <!-- Tab 2: Specs -->
+        <div id="tab-panel-specs" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-specs" hidden>
+          <div class="nhtsa-card">
+            <div class="nhtsa-card-header">
+              <h3 class="card-section-title">Specs</h3>
             </div>
+            <div class="nhtsa-card-body">
+              <div id="specs-grid" class="specs-grid-layout"></div>
+            </div>
+          </div>
+        </div>
 
-            <hr class="section-divider" />
+        <!-- Tab 3: Dimensions & Body -->
+        <div id="tab-panel-dimensions" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-dimensions" hidden>
+          <div class="nhtsa-card">
+            <div class="nhtsa-card-header">
+              <h3 class="card-section-title">Dimensions &amp; Body</h3>
+            </div>
+            <div class="nhtsa-card-body">
+              <div id="dimensions-grid" class="specs-grid-layout"></div>
+            </div>
+          </div>
+        </div>
 
-            <p class="plant-line">
-              <strong>Plant Information:</strong>
-              <span id="val-plant-info"></span>
-            </p>
+        <!-- Tab 4: Safety & Recalls -->
+        <div id="tab-panel-safety" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-safety" hidden>
+          <div class="nhtsa-card">
+            <div class="nhtsa-card-header">
+              <h3 class="card-section-title">Safety &amp; Restraints</h3>
+            </div>
+            <div class="nhtsa-card-body">
+              <div class="airbags-block">
+                <strong class="airbags-heading">Airbags:</strong>
+                <ul id="airbags-list" class="airbags-list"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div id="recalls-section" class="nhtsa-card" style="margin-top: 20px;">
+            <div class="nhtsa-card-header results-panel-header">
+              <h3 class="card-section-title">Open Safety Recalls</h3>
+              <a id="recall-page-link" href="/recall-check" class="btn-outline-blue btn-link-compact d-print-none">Standalone Recall Check</a>
+            </div>
+            <div class="nhtsa-card-body">
+              <div id="recalls-body"></div>
+            </div>
           </div>
         </div>
 
@@ -1083,6 +1180,6 @@
 
     <script src="/site-nav.js?v=20261112-1" defer></script>
     <script src="/recalls-ui.js?v=20261112-1" defer></script>
-    <script src="/app.js?v=20261112-1" defer></script>
+    <script src="/app.js?v=20261112-2" defer></script>
   </body>
 </html>

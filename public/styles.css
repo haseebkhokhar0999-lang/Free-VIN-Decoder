@@ -706,6 +706,149 @@ body {
   color: var(--text);
 }
 
+.results-top-card {
+  margin-bottom: 16px;
+}
+
+.results-top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 20px;
+  padding: 16px 20px;
+}
+
+.results-photo-wrap {
+  flex-shrink: 0;
+}
+
+.vehicle-stock-photo {
+  display: block;
+  width: 160px;
+  height: 90px;
+  object-fit: contain;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+}
+
+.results-title-wrap {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.results-heading-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.results-actions-wrap {
+  flex-shrink: 0;
+}
+
+.btn-print {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: #1453b8;
+  color: #ffffff;
+  border: 1px solid #0f4399;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-print:hover {
+  background: #0f4399;
+  box-shadow: 0 2px 8px rgba(20, 83, 184, 0.25);
+}
+
+.btn-print .print-icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.results-tabs-bar {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.results-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #526277;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.results-tab-btn:hover {
+  color: #1453b8;
+}
+
+.results-tab-btn.is-active {
+  color: #1453b8;
+  border-bottom-color: #1453b8;
+  font-weight: 700;
+}
+
+.tab-panel[hidden] {
+  display: none !important;
+}
+
+.specs-grid-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px 24px;
+}
+
+@media (min-width: 640px) {
+  .specs-grid-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.94rem;
+}
+
+.spec-row strong {
+  color: #132033;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.spec-row span {
+  color: #334155;
+  text-align: right;
+  word-break: break-word;
+}
+
 .btn-export-pdf {
   padding: 7px 14px;
   background: #ffffff;
@@ -1015,26 +1158,39 @@ body {
   .content-card,
   .info-grid,
   .site-footer,
-  .d-print-none {
+  .d-print-none,
+  .results-tabs-bar,
+  .btn-print,
+  .btn-export-pdf,
+  .btn-outline-blue {
     display: none !important;
   }
 
   html {
-  scroll-behavior: smooth;
-}
+    scroll-behavior: smooth;
+  }
 
-body {
+  body {
     background: #ffffff;
+    padding: 0;
   }
 
   .container {
     max-width: 100%;
     padding: 0;
+    margin: 0;
   }
 
   .nhtsa-card {
     box-shadow: none;
     border-color: #cbd5e1;
+    margin-bottom: 20px;
+    break-inside: avoid;
+  }
+
+  .tab-panel {
+    display: block !important;
+    margin-bottom: 24px;
   }
 }
 
