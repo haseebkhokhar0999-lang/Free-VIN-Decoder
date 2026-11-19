@@ -382,7 +382,7 @@ export function renderStandardDecoderCardHtml({ heading = 'Free 17-Character VIN
           </div>
         </div>
 
-        <div id="all-details-card" class="nhtsa-card d-print-none" hidden>
+        <div id="all-details-card" class="nhtsa-card" hidden>
           <div class="nhtsa-card-header results-panel-header">
             <h3 class="card-section-title">All Vehicle Details</h3>
             <button id="back-to-summary-btn" type="button" class="btn-outline-blue">Back to Summary</button>
