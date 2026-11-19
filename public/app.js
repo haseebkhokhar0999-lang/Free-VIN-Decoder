@@ -41,7 +41,6 @@ const progressCaption = document.getElementById('progress-caption');
 const resultsSection = document.getElementById('results-section');
 const makeLogo = document.getElementById('make-logo');
 const resultsHeading = document.getElementById('results-heading');
-const vehicleStockPhoto = document.getElementById('vehicle-stock-photo');
 const printResultsBtn = document.getElementById('print-results-btn');
 const exportPdfBtn = document.getElementById('export-pdf-btn');
 const errorStatusBanner = document.getElementById('error-status-banner');
@@ -266,75 +265,6 @@ function resetTabsToSummary() {
     panel.hidden = !isSummary;
     panel.classList.toggle('is-active', isSummary);
   });
-}
-
-let carPhotoController = null;
-let currentBodyClass = '';
-
-function updateStockCarPhoto(bodyClass) {
-  if (!vehicleStockPhoto) return;
-  currentBodyClass = bodyClass || '';
-  const bc = String(bodyClass || '').toLowerCase();
-  let photoSrc = '/car-stock-generic.png';
-  let altText = bodyClass ? `${bodyClass} stock photo` : 'Generic vehicle stock photo';
-
-  if (bc.includes('sedan')) {
-    photoSrc = '/car-stock-sedan.png';
-    altText = 'Sedan stock photo';
-  } else if (bc.includes('coupe')) {
-    photoSrc = '/car-stock-coupe.png';
-    altText = 'Coupe stock photo';
-  } else if (bc.includes('suv') || bc.includes('sport utility') || bc.includes('crossover')) {
-    photoSrc = '/car-stock-suv.png';
-    altText = 'SUV stock photo';
-  } else if (bc.includes('pickup') || bc.includes('truck')) {
-    photoSrc = '/car-stock-pickup.png';
-    altText = 'Pickup truck stock photo';
-  }
-
-  vehicleStockPhoto.src = photoSrc;
-  vehicleStockPhoto.alt = altText;
-}
-
-async function fetchWikimediaCarPhoto(year, make, model, bodyClass) {
-  updateStockCarPhoto(bodyClass || '');
-  if (!vehicleStockPhoto) return;
-
-  const terms = [year, make, model].map((s) => String(s || '').trim()).filter(Boolean);
-  if (terms.length === 0) return;
-
-  if (carPhotoController) {
-    carPhotoController.abort();
-    carPhotoController = null;
-  }
-  carPhotoController = new AbortController();
-
-  const searchQuery = terms.join(' ');
-  const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch=${encodeURIComponent(
-    searchQuery
-  )}&gsrnamespace=6&gsrlimit=3&prop=imageinfo&iiprop=url&iiurlwidth=800`;
-
-  try {
-    const res = await fetch(apiUrl, { signal: carPhotoController.signal });
-    if (!res.ok) return;
-    const data = await res.json();
-    const pages = data?.query?.pages;
-    if (!pages || typeof pages !== 'object') return;
-
-    const sortedPages = Object.values(pages).sort((a, b) => (a.index || 0) - (b.index || 0));
-    for (const page of sortedPages) {
-      const info = page?.imageinfo?.[0];
-      const imgUrl = info?.thumburl || info?.url;
-      if (imgUrl) {
-        vehicleStockPhoto.src = imgUrl;
-        vehicleStockPhoto.alt = `${searchQuery} photo`;
-        return;
-      }
-    }
-  } catch (err) {
-    if (err?.name === 'AbortError') return;
-    // Fallback stock photo remains set
-  }
 }
 
 function createPageButton(label, targetPage, { active = false, disabled = false } = {}) {
@@ -668,7 +598,6 @@ function renderResults(data, enteredYear) {
   setSummaryField(valSeries, data.otherInfo?.series);
   setSummaryField(valTrim, data.otherInfo?.trim);
 
-  fetchWikimediaCarPhoto(mfg.modelYear || '', mfg.make || '', mfg.model || '', mfg.bodyClass || '');
   renderOtherInfo(data.otherInfo);
   renderSpecsGrid(data);
   renderDimensionsGrid(data);
@@ -862,12 +791,6 @@ function loadFromCurrentUrl() {
 makeLogo.addEventListener('error', () => {
   makeLogo.hidden = true;
 });
-
-if (vehicleStockPhoto) {
-  vehicleStockPhoto.addEventListener('error', () => {
-    updateStockCarPhoto(currentBodyClass);
-  });
-}
 
 if (printResultsBtn) {
   printResultsBtn.addEventListener('click', () => {
