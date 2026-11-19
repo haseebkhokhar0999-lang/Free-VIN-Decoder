@@ -791,14 +791,12 @@ body {
   padding: 16px 20px;
 }
 
-.results-photo-wrap {
-  flex-shrink: 0;
-}
-
 .vehicle-stock-photo {
   display: block;
-  width: 160px;
-  height: 90px;
+  max-width: 100%;
+  max-height: 240px;
+  width: auto;
+  height: auto;
   object-fit: contain;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -1036,12 +1034,13 @@ body {
   align-items: center;
 }
 
+.mfg-image-col .vehicle-stock-photo,
 .vehicle-drawing {
   max-width: 100%;
-  max-height: 220px;
+  max-height: 240px;
   width: auto;
   height: auto;
-  border-radius: 6px;
+  border-radius: 8px;
   object-fit: contain;
 }
 
@@ -2204,8 +2203,7 @@ body {
   }
 
   .vehicle-stock-photo {
-    width: 120px;
-    height: 68px;
+    max-height: 200px;
   }
 
   .table-wrap,

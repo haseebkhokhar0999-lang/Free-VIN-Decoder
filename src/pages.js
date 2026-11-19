@@ -1,4 +1,4 @@
-export const ASSET_VERSION = '20261112-10';
+export const ASSET_VERSION = '20261112-11';
 
 export const FOOTER_DISCLAIMER =
   'Free VIN Decoder is an independent, unofficial tool. It is not affiliated with, endorsed by, or connected to NHTSA, NICB, Carfax, or any vehicle manufacturer.';
@@ -344,7 +344,12 @@ export function renderStandardDecoderCardHtml({ heading = 'Free 17-Character VIN
               </div>
 
               <div class="mfg-image-col">
-                <img id="vehicle-drawing" class="vehicle-drawing" alt="Vehicle body class illustration" hidden />
+                <img
+                  id="vehicle-stock-photo"
+                  class="vehicle-stock-photo"
+                  src="/car-stock-generic.png"
+                  alt="Vehicle stock photo"
+                />
               </div>
             </div>
           </div>

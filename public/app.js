@@ -59,7 +59,6 @@ const valModel = document.getElementById('val-model');
 const valBodyClass = document.getElementById('val-body-class');
 const valSeries = document.getElementById('val-series');
 const valTrim = document.getElementById('val-trim');
-const vehicleDrawing = document.getElementById('vehicle-drawing');
 
 const specsGrid = document.getElementById('specs-grid');
 const dimensionsGrid = document.getElementById('dimensions-grid');
@@ -624,22 +623,6 @@ function renderResults(data, enteredYear) {
   setSummaryField(valSeries, data.otherInfo?.series);
   setSummaryField(valTrim, data.otherInfo?.trim);
 
-  if (header.vehicleImageUrl) {
-    vehicleDrawing.alt = mfg.bodyClass ? `${mfg.bodyClass} illustration` : 'Vehicle illustration';
-    vehicleDrawing.hidden = false;
-    if (
-      header.vehicleImageUrl.endsWith('/3.png') ||
-      (mfg.bodyClass && mfg.bodyClass.toLowerCase().includes('coupe'))
-    ) {
-      vehicleDrawing.src = '/body-coupe.png';
-    } else {
-      vehicleDrawing.src = header.vehicleImageUrl;
-    }
-  } else {
-    vehicleDrawing.hidden = true;
-    vehicleDrawing.removeAttribute('src');
-  }
-
   updateStockCarPhoto(mfg.bodyClass || '');
   renderOtherInfo(data.otherInfo);
   renderSpecsGrid(data);
@@ -835,9 +818,11 @@ makeLogo.addEventListener('error', () => {
   makeLogo.hidden = true;
 });
 
-vehicleDrawing.addEventListener('error', () => {
-  vehicleDrawing.hidden = true;
-});
+if (vehicleStockPhoto) {
+  vehicleStockPhoto.addEventListener('error', () => {
+    vehicleStockPhoto.src = '/car-stock-generic.png';
+  });
+}
 
 if (printResultsBtn) {
   printResultsBtn.addEventListener('click', () => {
