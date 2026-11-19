@@ -1279,10 +1279,115 @@ body {
     break-inside: avoid;
   }
 
-  .tab-panel,
-  .tab-panel[hidden] {
+  /* (1) In print, show ONLY the currently active/selected tab panel and hide the other three */
+  .tab-panel {
+    display: none !important;
+  }
+
+  .tab-panel.is-active,
+  .tab-panel.active-tab,
+  .tab-panel.active {
     display: block !important;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
+  }
+
+  .tab-panel[hidden],
+  .tab-panel:not(.is-active):not(.active-tab):not(.active) {
+    display: none !important;
+  }
+
+  /* (2) In Safety & Recalls panel, print only one line per recall (component + campaign number + reported date) and hide full text */
+  .recalls-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .recall-item {
+    display: block !important;
+    padding: 4px 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .recall-item-header {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: baseline !important;
+    justify-content: space-between !important;
+    gap: 8px 12px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .recall-item-title {
+    margin: 0 !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    color: #0f172a !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .recall-badges {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: baseline !important;
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+  }
+
+  .recall-campaign-badge,
+  .recall-date-badge {
+    display: inline-block !important;
+    padding: 1px 5px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 3px !important;
+    background: transparent !important;
+    color: #334155 !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+  }
+
+  .recall-danger-badge,
+  .recall-warn-badge {
+    display: inline-block !important;
+    padding: 1px 4px !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+  }
+
+  .recall-detail {
+    display: none !important;
+  }
+
+  .recalls-summary {
+    margin: 0 0 6px !important;
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+  }
+
+  .recall-disclaimer {
+    margin-top: 8px !important;
+    font-size: 0.75rem !important;
+    line-height: 1.35 !important;
+    color: #64748b !important;
   }
 }
 
