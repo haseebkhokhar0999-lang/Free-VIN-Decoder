@@ -1279,21 +1279,11 @@ body {
     break-inside: avoid;
   }
 
-  /* (1) In print, show ONLY the currently active/selected tab panel and hide the other three */
-  .tab-panel {
-    display: none !important;
-  }
-
-  .tab-panel.is-active,
-  .tab-panel.active-tab,
-  .tab-panel.active {
+  /* Show all tab panels in print */
+  .tab-panel,
+  .tab-panel[hidden] {
     display: block !important;
     margin-bottom: 20px;
-  }
-
-  .tab-panel[hidden],
-  .tab-panel:not(.is-active):not(.active-tab):not(.active) {
-    display: none !important;
   }
 
   /* (2) In Safety & Recalls panel, print only one line per recall (component + campaign number + reported date) and hide full text */
