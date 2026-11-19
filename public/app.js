@@ -268,11 +268,15 @@ function resetTabsToSummary() {
   });
 }
 
+let carPhotoController = null;
+let currentBodyClass = '';
+
 function updateStockCarPhoto(bodyClass) {
   if (!vehicleStockPhoto) return;
+  currentBodyClass = bodyClass || '';
   const bc = String(bodyClass || '').toLowerCase();
   let photoSrc = '/car-stock-generic.png';
-  let altText = 'Generic vehicle stock photo';
+  let altText = bodyClass ? `${bodyClass} stock photo` : 'Generic vehicle stock photo';
 
   if (bc.includes('sedan')) {
     photoSrc = '/car-stock-sedan.png';
@@ -290,6 +294,47 @@ function updateStockCarPhoto(bodyClass) {
 
   vehicleStockPhoto.src = photoSrc;
   vehicleStockPhoto.alt = altText;
+}
+
+async function fetchWikimediaCarPhoto(year, make, model, bodyClass) {
+  updateStockCarPhoto(bodyClass || '');
+  if (!vehicleStockPhoto) return;
+
+  const terms = [year, make, model].map((s) => String(s || '').trim()).filter(Boolean);
+  if (terms.length === 0) return;
+
+  if (carPhotoController) {
+    carPhotoController.abort();
+    carPhotoController = null;
+  }
+  carPhotoController = new AbortController();
+
+  const searchQuery = terms.join(' ');
+  const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch=${encodeURIComponent(
+    searchQuery
+  )}&gsrnamespace=6&gsrlimit=3&prop=imageinfo&iiprop=url&iiurlwidth=800`;
+
+  try {
+    const res = await fetch(apiUrl, { signal: carPhotoController.signal });
+    if (!res.ok) return;
+    const data = await res.json();
+    const pages = data?.query?.pages;
+    if (!pages || typeof pages !== 'object') return;
+
+    const sortedPages = Object.values(pages).sort((a, b) => (a.index || 0) - (b.index || 0));
+    for (const page of sortedPages) {
+      const info = page?.imageinfo?.[0];
+      const imgUrl = info?.thumburl || info?.url;
+      if (imgUrl) {
+        vehicleStockPhoto.src = imgUrl;
+        vehicleStockPhoto.alt = `${searchQuery} photo`;
+        return;
+      }
+    }
+  } catch (err) {
+    if (err?.name === 'AbortError') return;
+    // Fallback stock photo remains set
+  }
 }
 
 function createPageButton(label, targetPage, { active = false, disabled = false } = {}) {
@@ -623,7 +668,7 @@ function renderResults(data, enteredYear) {
   setSummaryField(valSeries, data.otherInfo?.series);
   setSummaryField(valTrim, data.otherInfo?.trim);
 
-  updateStockCarPhoto(mfg.bodyClass || '');
+  fetchWikimediaCarPhoto(mfg.modelYear || '', mfg.make || '', mfg.model || '', mfg.bodyClass || '');
   renderOtherInfo(data.otherInfo);
   renderSpecsGrid(data);
   renderDimensionsGrid(data);
@@ -820,7 +865,7 @@ makeLogo.addEventListener('error', () => {
 
 if (vehicleStockPhoto) {
   vehicleStockPhoto.addEventListener('error', () => {
-    vehicleStockPhoto.src = '/car-stock-generic.png';
+    updateStockCarPhoto(currentBodyClass);
   });
 }
 
