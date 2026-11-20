@@ -58,6 +58,7 @@ const valModel = document.getElementById('val-model');
 const valBodyClass = document.getElementById('val-body-class');
 const valSeries = document.getElementById('val-series');
 const valTrim = document.getElementById('val-trim');
+const vehicleDrawing = document.getElementById('vehicle-drawing');
 
 const specsGrid = document.getElementById('specs-grid');
 const dimensionsGrid = document.getElementById('dimensions-grid');
@@ -544,6 +545,38 @@ function renderDimensionsGrid(data) {
   }
 }
 
+function getDrawingForBodyClass(bodyClass) {
+  const bc = String(bodyClass || '').toLowerCase().trim();
+  if (bc.includes('coupe')) {
+    return '/body-coupe.png';
+  }
+  if (bc.includes('sedan') || bc.includes('saloon')) {
+    return '/body-sedan.png';
+  }
+  if (bc.includes('suv') || bc.includes('sport utility') || bc.includes('crossover') || bc.includes('mpv')) {
+    return '/body-suv.png';
+  }
+  if (bc.includes('pickup') || bc.includes('truck')) {
+    return '/body-pickup.png';
+  }
+  return '/body-generic.png';
+}
+
+function updateBodyDrawing(bodyClass) {
+  if (!vehicleDrawing) return;
+  const drawingSrc = getDrawingForBodyClass(bodyClass);
+  vehicleDrawing.src = drawingSrc;
+  vehicleDrawing.alt = bodyClass ? `${bodyClass} body style outline` : 'Vehicle body style outline';
+}
+
+if (vehicleDrawing) {
+  vehicleDrawing.addEventListener('error', () => {
+    if (!vehicleDrawing.src.endsWith('/body-generic.png')) {
+      vehicleDrawing.src = '/body-generic.png';
+    }
+  });
+}
+
 function renderResults(data, enteredYear) {
   const header = data.header || {};
   const mfg = data.manufacturerBlock || {};
@@ -597,6 +630,7 @@ function renderResults(data, enteredYear) {
   setSummaryField(valBodyClass, mfg.bodyClass);
   setSummaryField(valSeries, data.otherInfo?.series);
   setSummaryField(valTrim, data.otherInfo?.trim);
+  updateBodyDrawing(mfg.bodyClass || '');
 
   renderOtherInfo(data.otherInfo);
   renderSpecsGrid(data);
