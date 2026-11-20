@@ -10,6 +10,16 @@ export const MAKE_PAGES = [
   { slug: '/chevrolet-vin-decoder', label: 'Chevrolet', title: 'Chevrolet VIN Decoder' },
   { slug: '/bmw-vin-decoder', label: 'BMW', title: 'BMW VIN Decoder' },
   { slug: '/mercedes-vin-decoder', label: 'Mercedes', title: 'Mercedes VIN Decoder' },
+  { slug: '/nissan-vin-decoder', label: 'Nissan', title: 'Nissan VIN Decoder' },
+  { slug: '/hyundai-vin-decoder', label: 'Hyundai', title: 'Hyundai VIN Decoder' },
+  { slug: '/kia-vin-decoder', label: 'Kia', title: 'Kia VIN Decoder' },
+  { slug: '/jeep-vin-decoder', label: 'Jeep', title: 'Jeep VIN Decoder' },
+  { slug: '/dodge-vin-decoder', label: 'Dodge', title: 'Dodge VIN Decoder' },
+  { slug: '/ram-vin-decoder', label: 'Ram', title: 'Ram VIN Decoder' },
+  { slug: '/tesla-vin-decoder', label: 'Tesla', title: 'Tesla VIN Decoder' },
+  { slug: '/audi-vin-decoder', label: 'Audi', title: 'Audi VIN Decoder' },
+  { slug: '/volkswagen-vin-decoder', label: 'Volkswagen', title: 'Volkswagen VIN Decoder' },
+  { slug: '/subaru-vin-decoder', label: 'Subaru', title: 'Subaru VIN Decoder' },
 ];
 
 export function escapeHtml(str) {
