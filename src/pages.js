@@ -81,6 +81,8 @@ export function renderHeaderHtml(activePath = '') {
             </li>
             <li><a href="/what-is-a-vin" class="nav-link${activePath === '/what-is-a-vin' ? ' is-active' : ''}">What is a VIN</a></li>
             <li><a href="/vin-decoder-vs-vehicle-history-report" class="nav-link${activePath === '/vin-decoder-vs-vehicle-history-report' ? ' is-active' : ''}">VIN vs History Report</a></li>
+            <li><a href="/how-to-check-a-vin-for-free" class="nav-link${activePath === '/how-to-check-a-vin-for-free' ? ' is-active' : ''}">Free VIN Check Guide</a></li>
+            <li><a href="/check-a-vin-before-buying-a-used-car" class="nav-link${activePath === '/check-a-vin-before-buying-a-used-car' ? ' is-active' : ''}">Used Car VIN Checklist</a></li>
             <li><a href="/about" class="nav-link${activePath === '/about' ? ' is-active' : ''}">About</a></li>
             <li><a href="/contact" class="nav-link${activePath === '/contact' ? ' is-active' : ''}">Contact</a></li>
           </ul>
@@ -114,6 +116,8 @@ export function renderFooterHtml() {
               <li><a href="/recall-check">Recall Check</a></li>
               <li><a href="/what-is-a-vin">What is a VIN</a></li>
               <li><a href="/vin-decoder-vs-vehicle-history-report">VIN vs History Report</a></li>
+              <li><a href="/how-to-check-a-vin-for-free">How to Check a VIN for Free</a></li>
+              <li><a href="/check-a-vin-before-buying-a-used-car">Check a VIN Before Buying a Used Car</a></li>
             </ul>
           </div>
 
