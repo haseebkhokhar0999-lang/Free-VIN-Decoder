@@ -118,6 +118,7 @@ export function renderFooterHtml() {
               <li><a href="/vin-decoder-vs-vehicle-history-report">VIN vs History Report</a></li>
               <li><a href="/how-to-check-a-vin-for-free">How to Check a VIN for Free</a></li>
               <li><a href="/check-a-vin-before-buying-a-used-car">Check a VIN Before Buying a Used Car</a></li>
+              <li><a href="https://www.bijlibillchecker.com/" target="_blank" rel="noopener noreferrer">Check Your Electricity Bill (Pakistan)</a></li>
             </ul>
           </div>
 
